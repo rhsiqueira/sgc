@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ColetaProduto;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class ColetaProdutoController extends Controller
 {
@@ -23,6 +24,7 @@ class ColetaProdutoController extends Controller
     public function store(Request $request)
     {
         try {
+        
             $dados = $request->validate([
                 'id_coleta' => 'required|integer|exists:coleta,id_coleta',
                 'id_produto' => 'required|integer|exists:produto,id_produto',
@@ -45,6 +47,8 @@ class ColetaProdutoController extends Controller
         if(!$registro) return response()->json(['status'=>'error','message'=>'Registro não encontrado.'],404);
 
         try {
+            DB::statement('SET @current_user_id = 4');
+
             $dados = $request->validate([
                 'quantidade' => 'sometimes|required|numeric|min:0',
                 'valor_unitario' => 'nullable|numeric|min:0'
@@ -65,6 +69,8 @@ class ColetaProdutoController extends Controller
     {
         $registro = ColetaProduto::find($id);
         if(!$registro) return response()->json(['status'=>'error','message'=>'Registro não encontrado.'],404);
+
+        DB::statement('SET @current_user_id = 4');
         $registro->delete();
         return response()->json(['status'=>'success','message'=>'Produto removido da coleta.']);
     }

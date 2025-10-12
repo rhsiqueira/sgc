@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Coleta;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class ColetaController extends Controller
 {
@@ -23,6 +24,7 @@ class ColetaController extends Controller
     public function store(Request $request)
     {
         try {
+
             $dados = $request->validate([
                 'id_cliente' => 'required|integer|exists:cliente,id_cliente',
                 'id_usuario' => 'required|integer|exists:usuario,id_usuario',
@@ -45,6 +47,8 @@ class ColetaController extends Controller
         if(!$coleta) return response()->json(['status'=>'error','message'=>'Coleta não encontrada.'],404);
 
         try {
+            DB::statement('SET @current_user_id = 4');
+
             $dados = $request->validate([
                 'id_cliente' => 'sometimes|required|integer|exists:cliente,id_cliente',
                 'id_usuario' => 'sometimes|required|integer|exists:usuario,id_usuario',
@@ -65,6 +69,8 @@ class ColetaController extends Controller
     {
         $coleta = Coleta::find($id);
         if(!$coleta) return response()->json(['status'=>'error','message'=>'Coleta não encontrada.'],404);
+
+        DB::statement('SET @current_user_id = 4');
         $coleta->delete();
         return response()->json(['status'=>'success','message'=>'Coleta excluída.']);
     }

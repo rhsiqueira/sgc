@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Cliente;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class ClienteController extends Controller
 {
@@ -55,9 +56,13 @@ class ClienteController extends Controller
                 'telefone_fixo' => 'nullable|string|max:20',
                 'dias_funcionamento' => 'nullable|string|max:100',
                 'observacoes' => 'nullable|string|max:200',
-                'status' => 'nullable|in:ATIVO,INATIVO'
+                'status' => 'nullable|in:ATIVO,INATIVO',
             ]);
 
+            // ⚙️ Define o usuário ativo na sessão MySQL (para triggers e log)
+            DB::statement('SET @current_user_id = 4');
+
+            // 🧱 Cria o cliente normalmente
             $cliente = Cliente::create($dados);
 
             return response()->json([
@@ -73,6 +78,13 @@ class ClienteController extends Controller
                 'data' => null,
                 'errors' => $e->errors()
             ], 422);
+        } catch (\Exception $e) {
+            // 🔍 Captura erros inesperados (SQL, etc.)
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Erro ao criar cliente.',
+                'details' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -106,6 +118,9 @@ class ClienteController extends Controller
                 'observacoes' => 'nullable|string|max:200',
                 'status' => 'nullable|in:ATIVO,INATIVO'
             ]);
+
+            // ⚙️ Define o usuário ativo na sessão MySQL antes da atualização
+            DB::statement('SET @current_user_id = 4');
 
             $cliente->update($dados);
 

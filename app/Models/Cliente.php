@@ -27,7 +27,6 @@ class Cliente extends Model
         'dias_funcionamento',
         'observacoes',
         'status',
-        // datas são geridas pelo banco; pode ler mas não precisa gravar:
         'data_criacao',
         'data_atualizacao',
     ];

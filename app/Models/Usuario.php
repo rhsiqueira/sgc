@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable; // Base para autenticação
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 
-class Usuario extends Model
+class Usuario extends Authenticatable
 {
-    protected $table = 'usuario';
-    protected $primaryKey = 'id_usuario';
-    public $timestamps = false;
+    use HasApiTokens, Notifiable;
+
+    protected $table = 'usuario'; 
+    protected $primaryKey = 'id_usuario'; 
+    public $incrementing = true; 
+    protected $keyType = 'int';  
+    public $timestamps = false;  
 
     protected $fillable = [
         'nome_completo',
@@ -26,7 +32,19 @@ class Usuario extends Model
         'data_atualizacao' => 'datetime',
     ];
 
-    // Relacionamentos
+    protected $hidden = [
+        'senha_hash', // 🔒 Esconde a senha nas respostas JSON
+    ];
+
+    /**
+     * ⚙️ Define qual campo o Laravel deve usar como senha na autenticação.
+     */
+    public function getAuthPassword()
+    {
+        return $this->senha_hash;
+    }
+
+    // 🔹 Relacionamentos
     public function perfil()
     {
         return $this->belongsTo(Perfil::class, 'id_perfil', 'id_perfil');
