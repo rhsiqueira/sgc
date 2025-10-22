@@ -131,7 +131,7 @@ body.login-page::after {
 
 .login-input:focus {
   outline: none;
-  background-color: #6b886b;
+  background-color: #5a735b;
   transform: scale(1.02);
 }
 
@@ -172,6 +172,13 @@ body.login-page::after {
     justify-content: center;
     align-items: center;
     background: linear-gradient(90deg, #ffffff 50%, #5a735b 50%);
+  }
+  
+  .login-input:focus {
+    background-color: #ffffff; /* mantém branco */
+    border: 2px solid #ffd750; /* destaque dourado opcional */
+    transform: scale(1.02);
+    outline: none;
   }
 
   .login-logo {

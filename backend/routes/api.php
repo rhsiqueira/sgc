@@ -41,6 +41,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::apiResource('clientes', ClienteController::class);
     Route::apiResource('perfis', PerfilController::class);
+    Route::apiResource('permissoes', App\Http\Controllers\PermissaoController::class);
     Route::apiResource('produtos', ProdutoController::class);
     Route::apiResource('movimentacoes-estoque', MovimentacaoEstoqueController::class);
     Route::apiResource('pedidos-compra', PedidoCompraController::class);

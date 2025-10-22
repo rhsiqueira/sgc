@@ -1,38 +1,74 @@
-.App {
-  text-align: center;
+/* ===== Estilo base do app React (limpo e seguro) ===== */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+/* ===== Container principal ===== */
+.App {
+  text-align: center;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #f7f7f7; /* fundo neutro */
+  color: #222;
+  font-family: "Manrope", sans-serif;
+  position: relative;
+  z-index: 0;
+}
+
+/* ===== Logo padrão (caso use) ===== */
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+  animation: App-logo-spin infinite 20s linear;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
+/* ===== Header base (caso queira exibir em telas sem CSS dedicado) ===== */
 .App-header {
-  background-color: #282c34;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  background: #ffffff;
+  color: #222;
 }
 
+/* ===== Link base ===== */
 .App-link {
-  color: #61dafb;
+  color: #a67c00;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.App-link:hover {
+  color: #d4af37;
 }
 
+/* ===== Animação padrão de logo (mantida só pra compatibilidade) ===== */
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ===== Acessibilidade (respeita usuários com motion off) ===== */
+@media (prefers-reduced-motion: reduce) {
+  .App-logo {
+    animation: none;
   }
 }

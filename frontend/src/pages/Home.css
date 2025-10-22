@@ -130,7 +130,7 @@ body::after {
   grid-template-columns: repeat(2, 1fr);
   gap: 18px;
   width: 85%;
-  margin-top: 42px;
+  margin-top: 24px;
 }
 
 .module-card {

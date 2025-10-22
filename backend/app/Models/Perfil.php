@@ -24,4 +24,10 @@ class Perfil extends Model
     {
         return $this->hasMany(Usuario::class, 'id_perfil', 'id_perfil');
     }
+
+    public function permissoes()
+    {
+    return $this->belongsToMany(Permissao::class, 'perfil_permissao', 'id_perfil', 'id_permissao');
+    }
+
 }
