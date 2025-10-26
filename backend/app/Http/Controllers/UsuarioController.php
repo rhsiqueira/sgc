@@ -6,7 +6,6 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class UsuarioController extends Controller
 {
@@ -40,10 +39,11 @@ class UsuarioController extends Controller
                 'senha_hash' => Hash::make($dados['senha']),
                 'id_perfil' => $dados['id_perfil'],
                 'status' => 'ATIVO',
+                'password_reset_required' => false,
             ]);
 
             DB::table('log_auditoria')->insert([
-                'id_usuario' => $request->user()->id_usuario,
+                'id_usuario' => $request->user()->id_usuario ?? null,
                 'tabela_afetada' => 'usuario',
                 'registro_id' => $usuario->id_usuario,
                 'acao' => 'INSERT',
@@ -80,7 +80,7 @@ class UsuarioController extends Controller
             $usuario->update($dados);
 
             DB::table('log_auditoria')->insert([
-                'id_usuario' => $request->user()->id_usuario,
+                'id_usuario' => $request->user()->id_usuario ?? null,
                 'tabela_afetada' => 'usuario',
                 'registro_id' => $usuario->id_usuario,
                 'acao' => 'UPDATE',
@@ -96,14 +96,17 @@ class UsuarioController extends Controller
     }
 
     /**
-     * Redefine senha e reseta tentativas de login
+     * Redefine senha — ajusta flag de troca obrigatória conforme o contexto
      */
     public function redefinirSenha(Request $request, $id)
     {
         $usuario = Usuario::find($id);
 
         if (!$usuario) {
-            return response()->json(['status' => 'error', 'message' => 'Usuário não encontrado.'], 404);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Usuário não encontrado.'
+            ], 404);
         }
 
         $dados = $request->validate([
@@ -116,18 +119,28 @@ class UsuarioController extends Controller
             return DB::transaction(function () use ($usuario, $dados, $executor) {
                 $usuario->senha_hash = Hash::make($dados['nova_senha']);
                 $usuario->tentativas_login = 0;
-                $usuario->status = 'ATIVO'; // desbloqueia caso tenha sido bloqueado
+                $usuario->status = 'ATIVO';
+
+                // 🔍 Ajuste inteligente:
+                // Se o próprio usuário redefinir sua senha → não exige troca novamente
+                // Se outro (admin) redefinir → marca troca obrigatória
+                if ($executor && $executor->id_usuario === $usuario->id_usuario) {
+                    $usuario->password_reset_required = false;
+                } else {
+                    $usuario->password_reset_required = true;
+                }
+
                 $usuario->save();
 
                 DB::table('log_auditoria')->insert([
-                    'id_usuario' => $executor->id_usuario,
+                    'id_usuario' => $executor->id_usuario ?? null,
                     'tabela_afetada' => 'usuario',
-                    'registro_id' => $usuario->id_usuario, // <<< correção crítica
+                    'registro_id' => $usuario->id_usuario,
                     'acao' => 'UPDATE',
                     'descricao' => sprintf(
-                        'Senha redefinida pelo usuário "%s" (%d) para "%s" (%d).',
-                        $executor->nome_completo,
-                        $executor->id_usuario,
+                        'Senha redefinida por "%s" (%d) para "%s" (%d).',
+                        $executor->nome_completo ?? 'Sistema',
+                        $executor->id_usuario ?? 0,
                         $usuario->nome_completo,
                         $usuario->id_usuario
                     ),
@@ -135,7 +148,9 @@ class UsuarioController extends Controller
 
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Senha redefinida com sucesso.'
+                    'message' => $executor && $executor->id_usuario === $usuario->id_usuario
+                        ? 'Senha redefinida com sucesso.'
+                        : 'Senha redefinida com sucesso. O usuário precisará alterá-la no próximo login.'
                 ]);
             });
         } catch (\Exception $e) {
@@ -161,14 +176,17 @@ class UsuarioController extends Controller
             $usuario->delete();
 
             DB::table('log_auditoria')->insert([
-                'id_usuario' => $request->user()->id_usuario,
+                'id_usuario' => $request->user()->id_usuario ?? null,
                 'tabela_afetada' => 'usuario',
                 'registro_id' => $usuario->id_usuario,
                 'acao' => 'DELETE',
                 'descricao' => 'Usuário excluído: ' . $usuario->nome_completo
             ]);
 
-            return response()->json(['status' => 'success', 'message' => 'Usuário removido com sucesso.']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Usuário removido com sucesso.'
+            ]);
         });
     }
 }

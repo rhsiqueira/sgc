@@ -69,19 +69,20 @@ class AuthController extends Controller
         // Gera token Sanctum
         $token = $usuario->createToken('api-token', ['*'])->plainTextToken;
 
-        // ✅ Retorna no formato esperado pelo frontend
+        // ✅ Retorna também a flag "password_reset_required"
         return response()->json([
             'status'  => 'success',
             'message' => 'Autenticado com sucesso.',
             'token'   => $token,
             'token_type' => 'Bearer',
             'usuario' => [
-                'id_usuario'    => $usuario->id_usuario,
-                'nome_completo' => $usuario->nome_completo,
-                'email'         => $usuario->email,
-                'cpf'           => $usuario->cpf,
-                'id_perfil'     => $usuario->id_perfil,
-                'status'        => $usuario->status,
+                'id_usuario'              => $usuario->id_usuario,
+                'nome_completo'           => $usuario->nome_completo,
+                'email'                   => $usuario->email,
+                'cpf'                     => $usuario->cpf,
+                'id_perfil'               => $usuario->id_perfil,
+                'status'                  => $usuario->status,
+                'password_reset_required' => (bool) $usuario->password_reset_required, // ✅ novo campo
             ]
         ], 200);
     }
@@ -106,9 +107,27 @@ class AuthController extends Controller
      */
     public function me(Request $request)
     {
+        $usuario = $request->user();
+
+        if (!$usuario) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Usuário não autenticado.'
+            ], 401);
+        }
+
+        // ✅ Retorna dados incluindo a flag de troca obrigatória
         return response()->json([
             'status' => 'success',
-            'data'   => $request->user()
+            'data'   => [
+                'id_usuario'              => $usuario->id_usuario,
+                'nome_completo'           => $usuario->nome_completo,
+                'email'                   => $usuario->email,
+                'cpf'                     => $usuario->cpf,
+                'id_perfil'               => $usuario->id_perfil,
+                'status'                  => $usuario->status,
+                'password_reset_required' => (bool) $usuario->password_reset_required, // ✅ novo campo
+            ]
         ]);
     }
 }

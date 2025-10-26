@@ -83,24 +83,23 @@
   outline: none;
 }
 
-/* Botão adicionar */
+/* ===== ✅ Botão Adicionar (padronizado com Usuário) ===== */
 .perfil-actions {
   width: 100%;
   max-width: 720px;
   display: flex;
-  justify-content: flex-end;
-  margin: 12px 0 20px;
+  justify-content: center;
+  margin: 10px 0 20px;
 }
 .perfil-actions button {
+  width: 100%;
   background: #e9e9e9;
   border: 1px solid #ccc;
   border-radius: 8px;
   color: #222;
   font-weight: 500;
-  padding: 10px 16px;
+  padding: 10px 0;
   cursor: pointer;
-  display: flex;
-  align-items: center;
   transition: transform 0.2s ease, background 0.3s ease;
 }
 .perfil-actions button:hover {
@@ -123,6 +122,8 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
+  min-height: calc((155px + 14px) * 3); /* ✅ padronizado com Usuário */
+  align-content: start;
 }
 
 /* Card */
@@ -171,6 +172,20 @@
   font-size: 0.9rem;
   margin: 2px 0;
   color: #555;
+}
+
+/* ===== ✅ Status (igual ao módulo Usuário) ===== */
+.status {
+  margin-top: 10px;
+  font-weight: 600;
+  text-align: right;
+  font-size: 0.85rem;
+}
+.status.ok {
+  color: #3a9b40;
+}
+.status.off {
+  color: #c62828;
 }
 
 /* Skeleton */
@@ -279,7 +294,8 @@
   font-size: 0.9rem;
 }
 .modal-form input,
-.modal-form textarea {
+.modal-form textarea,
+.modal-form select {
   padding: 8px;
   border-radius: 6px;
   border: 1px solid #ccc;
@@ -350,21 +366,17 @@
   border-top: 1px solid #ddd;
   padding-top: 10px;
 }
-
 .perm-bloco {
   background: #f9f9f9;
   border-radius: 8px;
   padding: 10px 12px;
   margin-bottom: 12px;
 }
-
 .perm-bloco strong {
   display: block;
   margin-bottom: 8px;
   color: #222;
 }
-
-/* Linha horizontal das ações → */
 .perm-linha {
   display: flex;
   justify-content: space-between;
@@ -374,7 +386,6 @@
   overflow-x: auto;
   padding-bottom: 6px;
 }
-
 .perm-item {
   display: flex;
   align-items: center;
@@ -392,13 +403,10 @@
   background: #eef6ff;
   border-color: #bbb;
 }
-
 .perm-linha input[type="checkbox"] {
   transform: scale(1.3);
   accent-color: #007bff;
 }
-
-/* Paginação dos módulos */
 .perm-paginacao {
   display: flex;
   justify-content: center;

@@ -20,7 +20,6 @@
   margin-bottom: 16px;
 }
 
-/* Header Top */
 .usuario-header-top {
   display: flex;
   align-items: unset;
@@ -42,12 +41,7 @@
   color: #000;
 }
 
-.usuario-logo {
-  height: 42px;
-  object-fit: contain;
-}
-
-/* Breadcrumb */
+/* ===== Breadcrumb ===== */
 .breadcrumb {
   display: flex;
   align-items: center;
@@ -72,7 +66,7 @@
   color: #aaa;
 }
 
-/* Barra de busca */
+/* ===== Busca ===== */
 .usuario-search {
   width: 100%;
   max-width: 720px;
@@ -95,7 +89,7 @@
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Botões abaixo da busca */
+/* ===== Ações ===== */
 .usuario-actions {
   width: 100%;
   max-width: 720px;
@@ -132,13 +126,13 @@
   align-items: center;
 }
 
-/* ===== Grid dos Cards ===== */
+/* ===== Grid ===== */
 .usuario-grid {
   width: 100%;
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
-  min-height: calc((180px + 14px) * 3);
+  min-height: calc((155px + 14px) * 3);
   align-content: start;
 }
 
@@ -167,7 +161,6 @@
   display: flex;
   gap: 6px;
 }
-
 .icon-btn {
   background: transparent;
   border: none;
@@ -219,12 +212,7 @@
   left: -150px;
   width: 150px;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
   animation: shimmer 1.5s infinite;
 }
 .skeleton-bar {
@@ -240,15 +228,9 @@
   background: #e0e0e0;
   margin-top: 8px;
 }
-.w-60 {
-  width: 60%;
-}
-.w-50 {
-  width: 50%;
-}
-.w-40 {
-  width: 40%;
-}
+.w-60 { width: 60%; }
+.w-50 { width: 50%; }
+.w-40 { width: 40%; }
 
 /* ===== Paginação ===== */
 .paginacao {
@@ -257,10 +239,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  margin-top: -36px;
-  margin-bottom: 28px;
-  position: relative;
+  gap: 0px;
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 0;
+  z-index: 10;
 }
 .page-btn {
   background: #e9e9e9;
@@ -291,10 +276,7 @@
 /* ===== Modal ===== */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(255, 255, 255, 0.7);
   display: flex;
   align-items: center;
@@ -303,48 +285,126 @@
   animation: fadeIn 0.3s ease;
 }
 
+/* 🔹 Modal mais compacto */
 .modal {
   background: #fff;
-  padding: 20px;
+  padding: 14px 16px;
   border-radius: 10px;
   width: 90%;
-  max-width: 400px;
+  max-width: 320px;
   position: relative;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0,0,0,0.08);
   animation: slideDown 0.4s ease-out;
+}
+
+.modal h4 {
+  font-size: 1rem;
+  text-align: center;
+  margin: 0 0 8px;
+  color: #222;
 }
 
 .modal-close {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   background: none;
   border: none;
-  color: #333;
+  color: #444;
   cursor: pointer;
+}
+
+/* ===== Formulário compacto ===== */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .modal-form label {
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
+  font-weight: 500;
   color: #333;
+  margin-bottom: 4px;
 }
+
 .modal-form input,
 .modal-form select {
-  padding: 8px;
+  margin-top: 3px;
+  padding: 8px 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
   background: #fafafa;
   color: #222;
-  margin-top: 4px;
   outline: none;
+  font-size: 0.9rem;
+  transition: all 0.25s ease;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.03);
 }
+
+.modal-form input:focus,
+.modal-form select:focus {
+  border-color: #999;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}
+
+/* 👁️ Campo de senha */
+.senha-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.senha-wrapper input {
+  width: 100%;
+  padding-right: 34px;
+}
+.senha-toggle {
+  position: absolute;
+  right: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+.senha-toggle svg {
+  stroke: #444 !important;
+  width: 18px;
+  height: 18px;
+}
+.senha-toggle:hover svg {
+  stroke: #000 !important;
+}
+
+/* ===== PERFIL + STATUS ===== */
+.perfil-status-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px; /* 🔹 menor distância entre os campos */
+  flex-wrap: wrap; /* 🔹 quebra automática no mobile */
+}
+
+.perfil-status-container label {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.perfil-status-container label:last-child {
+  flex: 0 0 40%; /* 🔹 Status mais estreito à direita */
+}
+
+/* ===== Botões do modal ===== */
 .modal-actions {
   display: flex;
   justify-content: space-between;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 .btn {
   border: none;
@@ -352,6 +412,7 @@
   padding: 8px 12px;
   cursor: pointer;
   font-weight: 500;
+  font-size: 0.9rem;
 }
 .btn.primary {
   background: #e0e0e0;
@@ -363,52 +424,10 @@
 }
 
 /* ===== Animações ===== */
-@keyframes shimmer {
-  100% {
-    left: 100%;
-  }
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes fadeDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes popIn {
-  0% {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-.fade-in {
-  animation: fadeIn 0.5s ease;
-}
-.enter-down {
-  animation: fadeDown 0.6s ease;
-}
+@keyframes shimmer { 100% { left: 100%; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px);} to { opacity: 1; transform: translateY(0);} }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-25px);} to { opacity: 1; transform: translateY(0);} }
+@keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.fade-in { animation: fadeIn 0.5s ease; }
+.enter-down { animation: fadeDown 0.6s ease; }

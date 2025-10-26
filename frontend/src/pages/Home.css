@@ -14,7 +14,7 @@ body {
   position: relative;
 }
 
-/* 🌟 Camada de partículas douradas animadas */
+/* 🌟 Partículas douradas animadas */
 body::before,
 body::after {
   content: "";
@@ -34,18 +34,6 @@ body::after {
   animation-direction: reverse;
 }
 
-@keyframes floatParticles {
-  0% {
-    transform: translateY(0) translateX(0);
-  }
-  50% {
-    transform: translateY(-20px) translateX(20px);
-  }
-  100% {
-    transform: translateY(0) translateX(0);
-  }
-}
-
 /* CONTAINER PRINCIPAL */
 .home-container {
   display: flex;
@@ -60,22 +48,14 @@ body::after {
 /* HEADER */
 .home-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   width: 88%;
   padding-top: 25px;
   animation: fadeIn 0.8s ease forwards;
 }
 
-/* LOGO */
-.home-logo {
-  width: 115px;
-  height: auto;
-  opacity: 0;
-  animation: slideDown 0.8s ease forwards;
-}
-
-/* BOTÃO DE LOGOUT (ícone branco e limpo) */
+/* BOTÃO DE LOGOUT */
 .logout-wrapper {
   display: flex;
   align-items: center;
@@ -113,7 +93,6 @@ body::after {
   font-weight: 700;
   font-size: 1.3rem;
   text-shadow: 0px 3px 8px rgba(0, 0, 0, 0.6);
-  animation: fadeIn 1.2s ease forwards;
 }
 
 .home-welcome p {
@@ -121,7 +100,6 @@ body::after {
   font-size: 0.95rem;
   color: #e2c35f;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  animation: fadeIn 1.4s ease forwards;
 }
 
 /* MÓDULOS */
@@ -166,7 +144,136 @@ body::after {
   font-weight: 600;
 }
 
-/* ANIMAÇÕES GERAIS */
+/* === 🔐 MODAL DE REDEFINIÇÃO DE SENHA === */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 215, 80, 0.3);
+  border-radius: 14px;
+  padding: 24px 22px;
+  width: 92%;
+  max-width: 420px;
+  color: #fff;
+  box-shadow: 0 0 18px rgba(255, 215, 80, 0.15);
+  backdrop-filter: blur(10px);
+  position: relative;
+  animation: slideDown 0.4s ease;
+}
+
+.modal h4 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  color: #ffe27a;
+}
+
+.modal-subtext {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 14px;
+  color: #bfbfbf;
+  line-height: 1.4;
+}
+
+/* Formulário mais compacto */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-form label {
+  font-size: 0.85rem;
+  color: #ffd966;
+  margin-bottom: 2px;
+}
+
+.senha-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px; /* 🔹 distância menor entre os campos */
+}
+
+.senha-wrapper input {
+  width: 100%;
+  padding: 10px 38px 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.senha-wrapper input:focus {
+  border-color: #ffe27a;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.senha-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ffe27a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mensagens de feedback */
+.mensagem {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.mensagem.error {
+  color: #ff7b7b;
+}
+
+.mensagem.success {
+  color: #7bff9e;
+}
+
+/* BOTÃO PADRONIZADO */
+.modal-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.btn.primary {
+  width: 100%;
+  background: linear-gradient(145deg, #d4af37, #e3c04f);
+  border: none;
+  color: #133e1c;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn.primary:hover {
+  background: linear-gradient(145deg, #e8c45e, #f1d371);
+  transform: translateY(-1px);
+}
+
+/* ANIMAÇÕES */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -193,10 +300,6 @@ body::after {
 @media (min-width: 1024px) {
   .home-header {
     width: 80%;
-  }
-
-  .home-logo {
-    width: 150px;
   }
 
   .home-modules {

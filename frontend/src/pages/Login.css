@@ -10,7 +10,7 @@ body.login-page::after {
   background-size: 3px 3px;
   opacity: 0.25;
   animation: floatParticles 35s linear infinite;
-  pointer-events: none; /* permite clicar nos elementos acima */
+  pointer-events: none;
   z-index: 0;
 }
 
@@ -51,7 +51,7 @@ body.login-page::after {
   padding: 120px 20px 0;
   overflow: hidden;
   position: relative;
-  z-index: 2; /* acima das partículas */
+  z-index: 2;
 }
 
 /* === Animações suaves === */
@@ -173,13 +173,6 @@ body.login-page::after {
     align-items: center;
     background: linear-gradient(90deg, #ffffff 50%, #5a735b 50%);
   }
-  
-  .login-input:focus {
-    background-color: #ffffff; /* mantém branco */
-    border: 2px solid #ffd750; /* destaque dourado opcional */
-    transform: scale(1.02);
-    outline: none;
-  }
 
   .login-logo {
     position: absolute;
@@ -230,5 +223,51 @@ body.login-page::after {
 
   .login-button:hover {
     background-color: #f4f7f4;
+  }
+}
+
+/* === Campo de senha com olhinho (adição mínima) === */
+.senha-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.senha-wrapper input {
+  width: 100%;
+  padding-right: 38px; /* espaço pro ícone */
+}
+
+.senha-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.senha-toggle svg {
+  stroke: #fff !important;
+  width: 18px;
+  height: 18px;
+}
+
+.senha-toggle:hover svg {
+  stroke: #ffd750 !important;
+}
+
+/* === Ajuste apenas para desktop === */
+@media (min-width: 1024px) {
+  .senha-toggle svg {
+    stroke: #5a735b !important;
+  }
+  .senha-toggle:hover svg {
+    stroke: #ffd750 !important;
   }
 }

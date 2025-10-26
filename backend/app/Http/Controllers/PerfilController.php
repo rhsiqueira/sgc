@@ -39,6 +39,7 @@ class PerfilController extends Controller
             $dados = $request->validate([
                 'nome_perfil' => 'required|string|max:50|unique:perfil,nome_perfil',
                 'descricao' => 'nullable|string|max:250',
+                'status' => 'in:ATIVO,INATIVO', // ✅ campo novo validado
                 'permissoes' => 'array',
                 'permissoes.*' => 'integer|exists:permissao,id_permissao',
             ]);
@@ -84,6 +85,7 @@ class PerfilController extends Controller
             $dados = $request->validate([
                 'nome_perfil' => 'sometimes|required|string|max:50|unique:perfil,nome_perfil,' . $id . ',id_perfil',
                 'descricao' => 'nullable|string|max:250',
+                'status' => 'in:ATIVO,INATIVO', // ✅ campo novo validado
                 'permissoes' => 'array',
                 'permissoes.*' => 'integer|exists:permissao,id_permissao',
             ]);

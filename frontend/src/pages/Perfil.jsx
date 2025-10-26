@@ -21,11 +21,11 @@ export default function Perfil() {
     nome_perfil: "",
     descricao: "",
     permissoes: [],
+    status: "ATIVO", // ✅ novo campo
   });
 
   const POR_PAGINA = 3;
 
-  // 🔹 Carregar perfis
   const fetchPerfis = async () => {
     try {
       setCarregando(true);
@@ -40,7 +40,6 @@ export default function Perfil() {
     }
   };
 
-  // 🔹 Carregar permissões
   const fetchPermissoes = async () => {
     try {
       const { data } = await api.get("/permissoes");
@@ -55,7 +54,6 @@ export default function Perfil() {
     fetchPermissoes();
   }, []);
 
-  // 🔹 Filtro de busca
   const filtrados = useMemo(() => {
     const termo = busca.trim().toLowerCase();
     if (!termo) return perfis;
@@ -70,7 +68,6 @@ export default function Perfil() {
   const inicio = (pagina - 1) * POR_PAGINA;
   const paginaAtual = filtrados.slice(inicio, inicio + POR_PAGINA);
 
-  // 🔹 Abrir modal
   const abrirModal = (perfil = null) => {
     if (perfil) {
       setEditMode(true);
@@ -79,6 +76,7 @@ export default function Perfil() {
         nome_perfil: perfil.nome_perfil || "",
         descricao: perfil.descricao || "",
         permissoes: perfil.permissoes?.map((p) => p.id_permissao) || [],
+        status: perfil.status || "ATIVO",
       });
     } else {
       setEditMode(false);
@@ -87,6 +85,7 @@ export default function Perfil() {
         nome_perfil: "",
         descricao: "",
         permissoes: [],
+        status: "ATIVO",
       });
     }
     setPagina(1);
@@ -100,14 +99,13 @@ export default function Perfil() {
       nome_perfil: "",
       descricao: "",
       permissoes: [],
+      status: "ATIVO",
     });
   };
 
-  // 🔹 Salvar perfil
   const salvarPerfil = async (e) => {
     e.preventDefault();
 
-    // Validação: ao menos 1 permissão por módulo
     const incompletos = Object.entries(permissoesPorModulo).filter(
       ([, lista]) =>
         !lista.some((perm) => formData.permissoes.includes(perm.id_permissao))
@@ -136,7 +134,6 @@ export default function Perfil() {
     }
   };
 
-  // 🔹 Excluir perfil
   const excluirPerfil = async (p) => {
     const ok = window.confirm(`Excluir o perfil "${p.nome_perfil}"?`);
     if (!ok) return;
@@ -149,7 +146,7 @@ export default function Perfil() {
     }
   };
 
-  // 🔹 Toggle permissão
+  // ✅ preservado — usado dentro do modal
   const togglePermissao = (idPermissao) => {
     setFormData((prev) => {
       const jaTem = prev.permissoes.includes(idPermissao);
@@ -162,14 +159,12 @@ export default function Perfil() {
     });
   };
 
-  // 🔹 Formatador de data
   const formatarData = (dataStr) => {
     if (!dataStr) return "—";
     const data = new Date(dataStr);
     return data.toLocaleDateString("pt-BR");
   };
 
-  // 🔹 Agrupar permissões por módulo
   const permissoesPorModulo = useMemo(() => {
     const grupos = {};
     permissoes.forEach((p) => {
@@ -179,6 +174,7 @@ export default function Perfil() {
     return grupos;
   }, [permissoes]);
 
+  // ✅ preservados e usados
   const totalModulos = Object.entries(permissoesPorModulo).length;
   const moduloAtual = Object.entries(permissoesPorModulo).slice(
     pagina - 1,
@@ -187,7 +183,6 @@ export default function Perfil() {
 
   return (
     <div className="perfil-page enter-down">
-      {/* Header */}
       <header className="perfil-header">
         <div className="perfil-header-top">
           <button className="back-btn" onClick={() => navigate("/home")}>
@@ -215,6 +210,7 @@ export default function Perfil() {
           />
         </div>
 
+        {/* ✅ botão padronizado com Usuário */}
         <div className="perfil-actions">
           <button onClick={() => abrirModal(null)}>
             <PlusCircle size={16} style={{ marginRight: 6 }} />
@@ -223,7 +219,6 @@ export default function Perfil() {
         </div>
       </header>
 
-      {/* Conteúdo */}
       <main className="perfil-content">
         {carregando && (
           <div className="perfil-grid">
@@ -270,6 +265,11 @@ export default function Perfil() {
                 <p className="perfil-line">
                   <strong>Criado em:</strong> {formatarData(p.data_criacao)}
                 </p>
+
+                {/* ✅ status igual ao módulo Usuário */}
+                <p className={`status ${p.status === "ATIVO" ? "ok" : "off"}`}>
+                  {p.status || "ATIVO"}
+                </p>
               </article>
             ))}
           </div>
@@ -298,7 +298,6 @@ export default function Perfil() {
         )}
       </main>
 
-      {/* Modal */}
       {openModal && (
         <div className="modal-overlay" onClick={fecharModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -331,7 +330,21 @@ export default function Perfil() {
                 ></textarea>
               </label>
 
-              {/* 🔹 Permissões paginadas */}
+              {/* ✅ Campo status */}
+              <label>
+                Status
+                <select
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData((d) => ({ ...d, status: e.target.value }))
+                  }
+                >
+                  <option value="ATIVO">ATIVO</option>
+                  <option value="INATIVO">INATIVO</option>
+                </select>
+              </label>
+
+              {/* 🔹 Permissões (mantidas completas e funcionais) */}
               <div className="permissoes-grid">
                 <h5>Permissões</h5>
 
@@ -406,16 +419,7 @@ export default function Perfil() {
                 })}
 
                 {totalModulos > 1 && (
-                  <div
-                    className="perm-paginacao"
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      gap: "16px",
-                      marginTop: "14px",
-                    }}
-                  >
+                  <div className="perm-paginacao">
                     <button
                       type="button"
                       className="btn ghost"

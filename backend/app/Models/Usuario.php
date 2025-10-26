@@ -27,6 +27,7 @@ class Usuario extends Authenticatable
         'tentativas_login',
         'data_criacao',
         'data_atualizacao',
+        'password_reset_required', // ✅ novo campo adicionado
     ];
 
     protected $hidden = [
@@ -34,8 +35,9 @@ class Usuario extends Authenticatable
     ];
 
     protected $casts = [
-        'data_criacao'     => 'datetime',
-        'data_atualizacao' => 'datetime',
+        'data_criacao'             => 'datetime',
+        'data_atualizacao'         => 'datetime',
+        'password_reset_required'  => 'boolean', // ✅ conversão automática para boolean
     ];
 
     /**

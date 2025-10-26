@@ -18,7 +18,18 @@ function Login() {
     return () => document.body.classList.remove("login-page");
   }, []);
 
-  // 🔹 Remove pontuação do CPF
+  // 🔹 Máscara dinâmica do CPF (000.000.000-00)
+  const handleCpfChange = (e) => {
+    let valor = e.target.value.replace(/\D/g, ""); // remove tudo que não for número
+    if (valor.length > 11) valor = valor.slice(0, 11); // limita a 11 dígitos
+    valor = valor
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    setCpf(valor);
+  };
+
+  // 🔹 Remove pontuação antes de enviar
   const limparCpf = (valor) => valor.replace(/\D/g, "");
 
   // 🔹 Função principal de login
@@ -63,8 +74,10 @@ function Login() {
           type="text"
           placeholder="000.000.000-00"
           value={cpf}
-          onChange={(e) => setCpf(e.target.value)}
+          onChange={handleCpfChange}
           className="login-input"
+          inputMode="numeric"
+          maxLength={14}
           required
         />
 
@@ -81,7 +94,7 @@ function Login() {
         {mensagem && <p className="login-error">{mensagem}</p>}
 
         <button type="submit" className="login-button" disabled={loading}>
-          {loading ? "Entrando..." : "CONTINUAR"}
+          {loading ? "ENTRANDO..." : "CONTINUAR"}
         </button>
       </form>
     </div>

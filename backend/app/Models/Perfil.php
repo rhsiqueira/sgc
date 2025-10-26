@@ -14,6 +14,7 @@ class Perfil extends Model
         'nome_perfil',
         'descricao',
         'data_criacao',
+        'status',
     ];
 
     protected $casts = [
