@@ -4,7 +4,9 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
-import "./index.css";
+import "./styles/index.css";
+
+
 
 // 🚀 Ponto de entrada principal do app
 const root = ReactDOM.createRoot(document.getElementById("root"));

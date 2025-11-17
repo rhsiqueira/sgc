@@ -1,4 +1,16 @@
+/* =========================================================
+   Cliente.css — versão revisada, fiel ao original, 
+   + suporte ao filtro de status (mesma estética do módulo Usuário)
+   ========================================================= */
+
 /* ===== Estrutura Geral ===== */
+
+
+.cliente-page body {
+  background: #f7f7f7 !important;
+  overflow: auto !important;
+}
+
 .cliente-page {
   min-height: 100vh;
   display: flex;
@@ -36,6 +48,7 @@
   transform: rotate(0deg);
   transition: transform 0.3s ease, color 0.3s ease;
 }
+
 .back-btn:hover {
   transform: rotate(-15deg) scale(1.1);
   color: #000;
@@ -49,19 +62,23 @@
   margin-bottom: 14px;
   animation: popIn 0.8s ease-in-out;
 }
+
 .crumb {
   cursor: pointer;
   color: #777;
   font-size: 0.9rem;
   transition: color 0.3s ease;
 }
+
 .crumb:hover {
   color: #000;
 }
+
 .crumb.active {
   color: #000;
   font-weight: 600;
 }
+
 .sep {
   color: #aaa;
 }
@@ -74,6 +91,7 @@
   justify-content: center;
   margin-bottom: 10px;
 }
+
 .cliente-search input {
   width: 100%;
   padding: 10px 14px;
@@ -85,8 +103,30 @@
   outline: none;
   transition: box-shadow 0.3s ease;
 }
+
 .cliente-search input:focus {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ==========================================================
+   🔹 Filtro de Status — adicionado igual ao módulo Usuário
+   ========================================================== */
+.filtro-select {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px 10px;
+  background: #fff;
+  font-size: 0.9rem;
+  color: #222;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.filtro-select:focus {
+  border-color: #999;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
 }
 
 /* ===== Botão Adicionar ===== */
@@ -97,6 +137,7 @@
   justify-content: center;
   margin: 10px 0 20px;
 }
+
 .cliente-actions button {
   width: 100%;
   background: #e9e9e9;
@@ -111,6 +152,7 @@
   justify-content: center;
   transition: transform 0.2s ease, background 0.3s ease;
 }
+
 .cliente-actions button:hover {
   transform: scale(1.03);
   background: #ddd;
@@ -151,11 +193,13 @@
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .cliente-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* ===== Ações ===== */
 .card-actions {
   position: absolute;
   top: 10px;
@@ -163,6 +207,7 @@
   display: flex;
   gap: 6px;
 }
+
 .icon-btn {
   background: transparent;
   border: none;
@@ -170,33 +215,40 @@
   cursor: pointer;
   transition: transform 0.2s ease, color 0.3s ease;
 }
+
 .icon-btn:hover {
   transform: scale(1.15);
   color: #000;
 }
+
 .icon-btn.danger:hover {
   color: #e53935;
 }
 
+/* ===== Texto e status ===== */
 .cliente-name {
   font-weight: 600;
   font-size: 1.1rem;
   margin-bottom: 8px;
 }
+
 .cliente-line {
   font-size: 0.9rem;
   margin: 2px 0;
   color: #555;
 }
+
 .status {
   margin-top: 10px;
   font-weight: 600;
   text-align: right;
   font-size: 0.85rem;
 }
+
 .status.ok {
   color: #3a9b40;
 }
+
 .status.off {
   color: #c62828;
 }
@@ -210,7 +262,6 @@
   transition: all 0.4s ease-in-out;
 }
 
-/* ===== Expansão do 3º Card ===== */
 .cliente-card.expandido.invertido {
   transform: scale(1.02);
   z-index: 6;
@@ -218,12 +269,11 @@
   transition: all 0.4s ease-in-out;
 }
 
-/* ===== Ocultação (instantânea) ===== */
 .cliente-card.oculto {
   display: none !important;
 }
 
-/* ===== Detalhes Internos ===== */
+/* ===== Detalhes ===== */
 .cliente-detalhes {
   margin-top: 8px;
   font-size: 0.88rem;
@@ -239,6 +289,7 @@
   overflow: hidden;
   background: #f1f1f1;
 }
+
 .skeleton::after {
   content: "";
   position: absolute;
@@ -246,23 +297,31 @@
   left: -150px;
   width: 150px;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent);
   animation: shimmer 1.5s infinite;
 }
+
 .skeleton-bar {
   height: 14px;
   background: #e0e0e0;
   border-radius: 4px;
   margin: 6px 0;
 }
-.w-60 { width: 60%; }
-.w-50 { width: 50%; }
-.w-40 { width: 40%; }
+
+.w-60 {
+  width: 60%;
+}
+
+.w-50 {
+  width: 50%;
+}
+
+.w-40 {
+  width: 40%;
+}
 
 /* ===== Paginação ===== */
 .paginacao {
@@ -279,6 +338,7 @@
   padding: 8px 0;
   z-index: 10;
 }
+
 .page-btn {
   background: #e9e9e9;
   border: 1px solid #ccc;
@@ -289,15 +349,18 @@
   cursor: pointer;
   transition: transform 0.3s ease, background 0.3s ease;
 }
+
 .page-btn:hover {
   transform: rotate(-3deg) scale(1.05);
   background: #ddd;
 }
+
 .page-btn:disabled {
   background: #f0f0f0;
   color: #999;
   cursor: not-allowed;
 }
+
 .page-info {
   font-size: 0.95rem;
   color: #444;
@@ -305,119 +368,43 @@
   text-align: center;
 }
 
-/* ===== Modal ===== */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  animation: fadeIn 0.3s ease;
-}
-.modal {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 420px;
-  position: relative;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.4s ease-out;
-}
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  color: #333;
-  cursor: pointer;
-}
+/* ===== Animações Locais ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
 
-/* ===== FORMULÁRIO DO MODAL (ajuste completo) ===== */
-.modal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.modal-form label {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.9rem;
-  color: #333;
-}
-
-.modal-form input,
-.modal-form select {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #fafafa;
-  color: #222;
-  margin-top: 4px;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.row {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.small-gap { gap: 8px; }
-
-.w-25 { flex: 0 0 25%; }
-.w-30 { flex: 0 0 30%; }
-.w-50 { flex: 0 0 48%; }
-.w-70 { flex: 0 0 70%; }
-.w-75 { flex: 0 0 73%; }
-
-.row label { flex: 1; min-width: 0; }
-.row input { width: 100%; }
-
-/* ===== Responsividade ===== */
-@media (max-width: 700px) {
-  .row { flex-direction: column; }
-  .w-25, .w-30, .w-50, .w-70, .w-75 {
-    flex: 1 1 100%;
+  to {
+    opacity: 1;
   }
 }
 
-/* ===== Botões e animações ===== */
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-.btn {
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-weight: 500;
-}
-.btn.primary {
-  background: #e0e0e0;
-  color: #222;
-}
-.btn.ghost {
-  background: transparent;
-  color: #666;
+@keyframes popIn {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
-/* ===== Animações ===== */
-@keyframes shimmer { 100% { left: 100%; } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 
-.fade-in { animation: fadeIn 0.5s ease; }
-.enter-down { animation: fadeDown 0.6s ease; }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    left: 100%;
+  }
+}

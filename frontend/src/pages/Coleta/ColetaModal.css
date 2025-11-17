@@ -1,0 +1,422 @@
+/* =========================================================
+   ColetaModal.css — idêntico ao layout do módulo Cliente
+   ========================================================= */
+
+@import "../Cliente/Cliente.css";
+
+/* ===== Overlay do modal ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.25s ease;
+}
+
+/* ===== Modal padrão ===== */
+.modal {
+  background: #fff;
+  padding: 16px 18px;
+  border-radius: 12px;
+  width: min(96vw, 920px);
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.12);
+  animation: slideDown 0.4s ease-out;
+  scrollbar-width: thin;
+}
+
+.modal::-webkit-scrollbar {
+  width: 6px;
+}
+.modal::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 3px;
+}
+.modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ===== Modal fullscreen ===== */
+.modal.fullscreen {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  background: #f7f7f7;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+/* ===== Cabeçalho ===== */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 14px;
+}
+
+.modal-header h4 {
+  font-size: 1.1rem;
+  color: #222;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ===== Botões ===== */
+.close-btn,
+.back-btn {
+  background: none;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  transition: transform 0.25s ease, color 0.3s ease;
+}
+
+.close-btn:hover,
+.back-btn:hover {
+  transform: rotate(-15deg) scale(1.1);
+  color: #000;
+}
+
+/* ===== Form ===== */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  color: #333;
+  min-width: 0;
+}
+
+.modal-form input,
+.modal-form select,
+.modal-form textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  color: #222;
+  margin-top: 4px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.modal-form input:focus,
+.modal-form select:focus,
+.modal-form textarea:focus {
+  border-color: #999;
+  background: #fff;
+}
+
+/* ===== Footer ===== */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  z-index: 2;
+}
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn.primary {
+  background: #2e7d32;
+  color: #fff;
+}
+.btn.primary:hover {
+  background: #1b5e20;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: #555;
+  border: 1px solid #ccc;
+}
+.btn.ghost:hover {
+  background: #f6f6f6;
+}
+
+/* =========================================================
+   SELEÇÃO DE CLIENTE (mantido igual)
+   ========================================================= */
+
+.cliente-page {
+  width: 100%;
+  min-height: 100%;
+  background: #f7f7f7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px;
+  animation: fadeDown 0.6s ease-out;
+}
+
+.cliente-header {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.cliente-header-top {
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  width: 100%;
+  gap: 78px;
+  margin-bottom: 12px;
+}
+
+.cliente-search {
+  width: 100%;
+  max-width: 720px;
+  margin-bottom: 10px;
+}
+
+.cliente-search input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+  background: #fff;
+}
+
+/* ===== Cards ===== */
+.cliente-content {
+  width: 100%;
+  max-width: 720px;
+  flex: 1;
+}
+
+.cliente-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.cliente-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  padding: 14px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: .3s;
+}
+
+.cliente-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 10px rgba(0,0,0,.1);
+}
+
+.cliente-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.cliente-line {
+  font-size: 0.9rem;
+  margin: 2px 0;
+  color: #555;
+}
+
+.status {
+  margin-top: 8px;
+  font-weight: 600;
+  text-align: right;
+  font-size: 0.85rem;
+}
+
+.status.ok { color: #3a9b40; }
+.status.off { color: #c62828; }
+
+/* ===== Paginação ===== */
+.paginacao {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.page-btn {
+  background: #e9e9e9;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+}
+
+.page-btn:hover {
+  background: #ddd;
+  transform: scale(1.05);
+}
+
+.page-btn:disabled {
+  background: #f0f0f0;
+  color: #999;
+}
+
+.page-info {
+  font-size: .95rem;
+  color: #444;
+}
+
+/* =========================================================
+   =========  NOVO BLOCO — COMPENSAÇÃO DA COLETA  ==========
+   ========================================================= */
+
+.tipo-bloco {
+  padding: 12px;
+  background: #f3f3f3;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.tipo-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+/* ---- FLEX principal ---- */
+.tipo-opcoes {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 12px;
+  margin-top: 10px;
+}
+
+/* ---- COLUNA (checkbox + texto identado) ---- */
+.tipo-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+/* ---- Checkbox maior ---- */
+.cb-big {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+/* ---- Texto identado ---- */
+.tipo-text {
+  font-size: 0.82rem;
+  line-height: 1.1rem;
+  color: #333;
+}
+
+/* ---- Lista de tipos ---- */
+.tipo-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tipo-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 12px 14px;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    margin-bottom: 10px;
+}
+
+.tipo-info {
+    font-size: 0.85rem;
+    color: #222;
+    font-weight: 500;
+    display: flex;
+    margin-bottom: 12px;
+    justify-content: center;
+    align-items: start;
+}
+
+.cliente-header .back-btn {
+   position: relative;
+   left: 0;
+   top: 0;
+   margin-left: 0;
+   transform: none !important;
+   align-self: flex-start;
+}
+
+
+.tipo-botoes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.tipo-edit,
+.tipo-remove {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.tipo-edit {
+  background: #e0f2f1;
+  color: #00796b;
+}
+.tipo-edit:hover { background: #b2dfdb; }
+
+.tipo-remove {
+  background: #ffebee;
+  color: #c62828;
+}
+.tipo-remove:hover { background: #ffcdd2; }
+
+/* =========================================================
+   Animações
+   ========================================================= */
+
+@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+@keyframes fadeDown { from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:translateY(0);} }
+@keyframes slideDown { from{opacity:0;transform:translateY(-30px);} to{opacity:1;transform:translateY(0);} }

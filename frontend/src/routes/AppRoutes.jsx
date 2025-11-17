@@ -3,30 +3,29 @@ import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // 📄 Páginas
-import Login from "../pages/Login";
-import Home from "../pages/Home";
-import Usuario from "../pages/Usuario";
-import Perfil from "../pages/Perfil";
-import Cliente from "../pages/Cliente";
-import Produto from "../pages/Produto";
+import Login from "../pages/Login/Login";
+import Home from "../pages/Home/Home";
+import Usuario from "../pages/Usuario/Usuario";
+import Perfil from "../pages/Perfil/Perfil";
+import Cliente from "../pages/Cliente/Cliente";
+import Produto from "../pages/Produto/Produto";
+import Coleta from "../pages/Coleta/Coleta"; // ✅ Novo módulo adicionado
 
-// 🔐 Contexto de autenticação
+// 🔐 Contexto global de autenticação
 import { AuthContext } from "../context/AuthContext";
 
-// ✅ Componente de rota privada
+/**
+ * 🔒 PrivateRoute
+ * Garante que apenas usuários autenticados acessem determinadas rotas.
+ */
 function PrivateRoute({ children }) {
   const { authenticated, user } = useContext(AuthContext);
-
-  // Se está logado e possui usuário válido → acessa rota
-  if (authenticated && user) {
-    return children;
-  }
-
-  // Caso contrário → redireciona para login
-  return <Navigate to="/login" replace />;
+  return authenticated && user ? children : <Navigate to="/login" replace />;
 }
 
-// ✅ Estrutura principal de rotas
+/**
+ * 🌐 Estrutura principal de rotas
+ */
 export default function AppRoutes() {
   return (
     <Routes>
@@ -79,7 +78,17 @@ export default function AppRoutes() {
         }
       />
 
-      {/* === ROTA PADRÃO / FALLBACK === */}
+      {/* ✅ NOVA ROTA: COLETA */}
+      <Route
+        path="/coletas"
+        element={
+          <PrivateRoute>
+            <Coleta />
+          </PrivateRoute>
+        }
+      />
+
+      {/* === ROTA PADRÃO === */}
       <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   );

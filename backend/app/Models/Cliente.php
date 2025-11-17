@@ -36,14 +36,19 @@ class Cliente extends Model
         'data_atualizacao' => 'datetime',
     ];
 
-    // Relacionamentos
+    // 🔹 Relacionamentos
     public function coletas()
     {
         return $this->hasMany(Coleta::class, 'id_cliente', 'id_cliente');
     }
 
-    public function contratos()
+    /**
+     * 🔹 Um cliente pode ter vários contratos,
+     * mas este relacionamento traz sempre o mais recente.
+     */
+    public function contrato()
     {
-        return $this->hasMany(Contrato::class, 'id_cliente', 'id_cliente');
+        return $this->hasOne(Contrato::class, 'id_cliente', 'id_cliente')
+                    ->latest('data_upload'); // ✅ sempre o mais novo
     }
 }

@@ -1,0 +1,346 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap");
+
+* {
+  font-family: "Manrope", sans-serif;
+  box-sizing: border-box;
+}
+
+/* 🔹 Agora o body é neutro para TODAS as páginas */
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f7f7f7;
+  color: #222;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* 🔹 O gradiente e as partículas agora ficam APENAS na Home */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding-bottom: 40px;
+  position: relative;
+  z-index: 1;
+
+  /* fundo da home */
+  background: radial-gradient(
+    circle at 30% 30%,
+    #0b2610 0%,
+    #0c3014 40%,
+    #0a210f 100%
+  );
+  color: #fff;
+  overflow: hidden;
+}
+
+/* 🌟 Partículas douradas animadas — agora presas na home-container */
+.home-container::before,
+.home-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(255, 215, 80, 0.35) 1px,
+    transparent 1px
+  );
+  background-size: 3px 3px;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.home-container::after {
+  background-image: radial-gradient(
+    rgba(255, 200, 50, 0.4) 1px,
+    transparent 1px
+  );
+  background-size: 4px 4px;
+  animation-duration: 55s;
+  animation-direction: reverse;
+}
+
+/* HEADER */
+.home-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 88%;
+  padding-top: 25px;
+  animation: fadeIn 0.8s ease forwards;
+  position: relative;
+  z-index: 1;
+}
+
+/* BOTÃO DE LOGOUT */
+.logout-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0.9;
+}
+
+.logout-wrapper:hover {
+  transform: scale(1.12) rotate(-5deg);
+  opacity: 1;
+}
+
+.logout-icon {
+  color: #ffffff;
+  filter: drop-shadow(0px 0px 6px rgba(255, 215, 80, 0.4));
+  transition: transform 0.3s ease;
+}
+
+.logout-wrapper:hover .logout-icon {
+  transform: translateX(2px);
+}
+
+/* SAUDAÇÃO */
+.home-welcome {
+  text-align: center;
+  margin-top: -24px;
+  animation: slideDown 1s ease forwards;
+  position: relative;
+  z-index: 1;
+}
+
+.home-welcome h2 {
+  font-weight: 700;
+  font-size: 1.3rem;
+  text-shadow: 0px 3px 8px rgba(0, 0, 0, 0.6);
+}
+
+.home-welcome p {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #e2c35f;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* MÓDULOS */
+.home-modules {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  width: 85%;
+  margin-top: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.module-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  padding: 24px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.module-card:hover {
+  background: linear-gradient(145deg, #c8a233, #e3be47);
+  transform: translateY(-5px);
+  color: #133e1c;
+  box-shadow: 0px 8px 18px rgba(200, 162, 51, 0.5);
+}
+
+.module-icon {
+  margin-bottom: 10px;
+  transition: transform 0.3s ease;
+}
+
+.module-card:hover .module-icon {
+  transform: scale(1.15);
+}
+
+.module-card h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* === 🔐 MODAL DE REDEFINIÇÃO DE SENHA === */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 215, 80, 0.3);
+  border-radius: 14px;
+  padding: 24px 22px;
+  width: 92%;
+  max-width: 420px;
+  color: #fff;
+  box-shadow: 0 0 18px rgba(255, 215, 80, 0.15);
+  backdrop-filter: blur(10px);
+  position: relative;
+  animation: slideDown 0.4s ease;
+}
+
+.modal h4 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  color: #ffe27a;
+}
+
+.modal-subtext {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 14px;
+  color: #bfbfbf;
+  line-height: 1.4;
+}
+
+/* Formulário mais compacto */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-form label {
+  font-size: 0.85rem;
+  color: #ffd966;
+  margin-bottom: 2px;
+}
+
+.senha-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.senha-wrapper input {
+  width: 100%;
+  padding: 10px 38px 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.senha-wrapper input:focus {
+  border-color: #ffe27a;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.senha-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ffe27a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mensagens de feedback */
+.mensagem {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.mensagem.error {
+  color: #ff7b7b;
+}
+
+.mensagem.success {
+  color: #7bff9e;
+}
+
+/* BOTÃO PADRONIZADO */
+.modal-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.btn.primary {
+  width: 100%;
+  background: linear-gradient(145deg, #d4af37, #e3c04f);
+  border: none;
+  color: #133e1c;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn.primary:hover {
+  background: linear-gradient(145deg, #e8c45e, #f1d371);
+  transform: translateY(-1px);
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* DESKTOP */
+@media (min-width: 1024px) {
+  .home-header {
+    width: 80%;
+  }
+
+  .home-modules {
+    grid-template-columns: repeat(3, 1fr);
+    width: 70%;
+    gap: 24px;
+  }
+
+  .module-card {
+    padding: 30px 0;
+    font-size: 1rem;
+  }
+
+  .home-welcome h2 {
+    font-size: 1.6rem;
+  }
+
+  .home-welcome p {
+    font-size: 1.1rem;
+  }
+}

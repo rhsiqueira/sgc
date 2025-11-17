@@ -10,17 +10,48 @@ use Illuminate\Support\Facades\DB;
 class ClienteController extends Controller
 {
     /**
-     * 🔹 Lista todos os clientes
+     * 🔹 Lista os clientes com filtro, ordenação e contrato vinculado
      */
-    public function index()
+    public function index(Request $request)
     {
-        $clientes = Cliente::all();
+        try {
+            $status = $request->query('status');   // ATIVO | INATIVO | vazio = TODOS
+            $busca  = trim($request->query('busca', ''));
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Clientes listados com sucesso.',
-            'data' => $clientes
-        ]);
+            $query = Cliente::with('contrato');
+
+            // 🔍 Filtro de status
+            if ($status && in_array($status, ['ATIVO', 'INATIVO'])) {
+                $query->where('status', $status);
+            }
+
+            // 🔍 Busca geral
+            if (!empty($busca)) {
+                $query->where(function ($q) use ($busca) {
+                    $buscaLower = strtolower($busca);
+                    $q->whereRaw('LOWER(razao_social) LIKE ?', ["%{$buscaLower}%"])
+                        ->orWhereRaw('LOWER(nome_fantasia) LIKE ?', ["%{$buscaLower}%"])
+                        ->orWhere('cnpj_cpf', 'LIKE', "%{$busca}%");
+                });
+            }
+
+            // 📌 Ordenação — mais recente primeiro
+            $query->orderBy('data_criacao', 'DESC');
+
+            $clientes = $query->get();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Clientes listados com sucesso.',
+                'data'    => $clientes
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Erro ao listar clientes: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -28,25 +59,25 @@ class ClienteController extends Controller
      */
     public function show($id)
     {
-        $cliente = Cliente::find($id);
+        $cliente = Cliente::with('contrato')->find($id);
 
         if (!$cliente) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Cliente não encontrado.',
-                'data' => null
+                'data'    => null
             ], 404);
         }
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Cliente encontrado.',
-            'data' => $cliente
+            'data'    => $cliente
         ]);
     }
 
     /**
-     * 🔹 Cria um novo cliente
+     * 🔹 Cria um novo cliente + AUDITORIA
      */
     public function store(Request $request)
     {
@@ -80,12 +111,27 @@ class ClienteController extends Controller
                 'status'             => 'nullable|in:ATIVO,INATIVO',
             ]);
 
-            $cliente = Cliente::create($dados);
+            $cliente = DB::transaction(function () use ($dados, $usuario) {
+                // Criação do cliente
+                $novo = Cliente::create($dados);
+
+                // 🔥 Auditoria
+                DB::table('log_auditoria')->insert([
+                    'id_usuario'     => $usuario->id_usuario,
+                    'tabela_afetada' => 'cliente',
+                    'registro_id'    => $novo->id_cliente,
+                    'acao'           => 'INSERT',
+                    'descricao'      => 'Criação de cliente',
+                    'detalhes'       => json_encode($dados),
+                ]);
+
+                return $novo;
+            });
 
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Cliente criado com sucesso.',
-                'data'    => $cliente
+                'data'    => $cliente->fresh('contrato')
             ], 201);
 
         } catch (ValidationException $e) {
@@ -103,7 +149,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * 🔹 Atualiza um cliente existente
+     * 🔹 Atualiza cliente + AUDITORIA
      */
     public function update(Request $request, $id)
     {
@@ -138,12 +184,26 @@ class ClienteController extends Controller
                 'status'             => 'nullable|in:ATIVO,INATIVO'
             ]);
 
-            $cliente->update($dados);
+            $clienteAtualizado = DB::transaction(function () use ($cliente, $dados, $usuario) {
+                $cliente->update($dados);
+
+                // 🔥 Auditoria
+                DB::table('log_auditoria')->insert([
+                    'id_usuario'     => $usuario->id_usuario,
+                    'tabela_afetada' => 'cliente',
+                    'registro_id'    => $cliente->id_cliente,
+                    'acao'           => 'UPDATE',
+                    'descricao'      => 'Atualização de cliente',
+                    'detalhes'       => json_encode($dados),
+                ]);
+
+                return $cliente->fresh('contrato');
+            });
 
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Cliente atualizado com sucesso.',
-                'data'    => $cliente
+                'data'    => $clienteAtualizado
             ]);
 
         } catch (ValidationException $e) {
@@ -161,7 +221,7 @@ class ClienteController extends Controller
     }
 
     /**
-     * 🔹 Exclui um cliente
+     * 🔹 Exclui cliente + AUDITORIA
      */
     public function destroy($id)
     {
@@ -177,7 +237,20 @@ class ClienteController extends Controller
         DB::statement('SET @current_user_id = ?', [$usuario->id_usuario]);
 
         try {
-            $cliente->delete();
+            DB::transaction(function () use ($cliente, $usuario) {
+                $detalhes = $cliente->toArray();
+
+                $cliente->delete();
+
+                DB::table('log_auditoria')->insert([
+                    'id_usuario'     => $usuario->id_usuario,
+                    'tabela_afetada' => 'cliente',
+                    'registro_id'    => $detalhes['id_cliente'],
+                    'acao'           => 'DELETE',
+                    'descricao'      => 'Exclusão de cliente',
+                    'detalhes'       => json_encode($detalhes),
+                ]);
+            });
 
             return response()->json([
                 'status'  => 'success',

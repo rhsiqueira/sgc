@@ -1,0 +1,404 @@
+/* ================================
+   LAYOUT FULLSCREEN
+=================================== */
+
+.tipo-fullscreen {
+  width: 100%;
+  height: 100vh;
+  background: #f7f7f7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px;
+  animation: fadeDown 0.6s ease-out;
+  overflow-y: auto;
+}
+
+/* ================================
+   HEADER — PADRÃO CLIENTE / PRODUTO
+=================================== */
+
+.tipo-header {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+/* Linha superior — somente botão voltar */
+.tipo-header-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 6px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+  padding: 4px;
+  transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: translateX(-3px) scale(1.1);
+  color: #000;
+}
+
+/* Linha inferior — breadcrumb centralizado */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.crumb {
+  cursor: pointer;
+  color: #777;
+  font-size: 0.9rem;
+  transition: color 0.25s ease;
+}
+
+.crumb:hover {
+  color: #000;
+}
+
+.crumb.active {
+  color: #000;
+  font-weight: 600;
+}
+
+.sep {
+  color: #aaa;
+}
+
+/* ================================
+   FORM PRINCIPAL
+=================================== */
+
+.tipo-form {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tipo-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.92rem;
+  color: #333;
+}
+
+.tipo-form input {
+  border: 1px solid #ccc;
+  background: #fafafa;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 4px;
+  outline: none;
+  font-size: 1rem;
+  transition: border 0.2s ease, background 0.2s ease;
+}
+
+.tipo-form input:focus {
+  border-color: #999;
+  background: #fff;
+}
+
+/* BOTÃO SALVAR TIPO */
+
+.tipo-salvar-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: #2e7d32;
+  border-radius: 10px;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.tipo-salvar-btn:hover {
+  background: #1b5e20;
+  transform: scale(1.02);
+}
+
+/* ================================
+   BLOCO DE PRODUTOS
+=================================== */
+
+.tipo-produtos-bloco {
+  margin-top: 8px;
+  padding: 12px;
+  background: #f3f3f3;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.tipo-produtos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.tipo-add-produto {
+  background: #e9e9e9;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  color: #222;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.tipo-add-produto:hover {
+  background: #ddd;
+  transform: scale(1.03);
+}
+
+.tipo-produtos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tipo-produto-item {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tipo-produto-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.tipo-produto-info strong {
+  font-size: 1rem;
+  color: #222;
+}
+
+.tipo-produto-info span {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.tipo-produto-remove {
+  background: transparent;
+  border: 1px solid #c62828;
+  color: #c62828;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.tipo-produto-remove:hover {
+  background: #c6282815;
+}
+
+.tipo-produto-vazio {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* ================================
+   TELA DE SELEÇÃO DE PRODUTO
+=================================== */
+
+.tipo-search {
+  width: 100%;
+  max-width: 720px;
+  margin-bottom: 10px;
+}
+
+.tipo-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #222;
+  font-size: 0.9rem;
+}
+
+.tipo-search input:focus {
+  outline: none;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+}
+
+.tipo-produto-content {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Skeleton */
+.skeleton {
+  background: #f0f0f0;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-bar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+
+.w-60 { width: 60%; }
+.w-50 { width: 50%; }
+.w-40 { width: 40%; }
+
+/* Paginação */
+.paginacao {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.page-btn {
+  background: #e9e9e9;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: #222;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.page-btn:hover {
+  transform: rotate(-3deg) scale(1.05);
+  background: #ddd;
+}
+
+.page-btn:disabled {
+  background: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 0.85rem;
+  color: #444;
+}
+
+/* ================================
+   MODAL DE QUANTIDADE
+=================================== */
+
+.produto-name {
+    color: black;
+}
+
+.tipo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.tipo-modal {
+  background: #fff;
+  padding: 16px 18px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 360px;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.12);
+}
+
+.tipo-modal h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.tipo-modal-produto {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.tipo-modal input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.tipo-modal input:focus {
+  outline: none;
+  border-color: #999;
+  background: #fff;
+}
+
+.tipo-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ================================
+   ANIMAÇÕES
+=================================== */
+
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

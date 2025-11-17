@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* === Fundo animado === */
+body.login-page::before,
+body.login-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 215, 80, 0.25) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.25;
+  animation: floatParticles 35s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+body.login-page::after {
+  background-image: radial-gradient(rgba(255, 200, 50, 0.35) 1px, transparent 1px);
+  background-size: 4px 4px;
+  animation-duration: 55s;
+  animation-direction: reverse;
+}
+@keyframes floatParticles {
+  0%,100% {transform: translate(0,0);}
+  50% {transform: translate(20px,-20px);}
+}
+
+/* === Estrutura base === */
+* {
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  background-color: #ffffff;
+  padding: 120px 20px 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+/* === Logo === */
+.login-logo {
+  width: 160px;
+  margin-bottom: 30px;
+  opacity: 0;
+  animation: slideDown 0.8s ease forwards;
+  z-index: 3;
+}
+
+/* === Formulário === */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 320px;
+  gap: 16px;
+  opacity: 0;
+  animation: slideUp 0.9s ease forwards;
+  animation-delay: 0.4s;
+  position: relative;
+  z-index: 3;
+}
+
+/* === Labels === */
+.login-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3c5d3c;
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+/* === Inputs (MOBILE) === */
+.login-input {
+  background-color: #5a735b;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px 12px;
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(255, 215, 80, 0.1);
+  transition: all 0.3s ease;
+}
+
+.login-input::placeholder {
+  color: #dfe3df;
+}
+
+.login-input:focus {
+  outline: none;
+  background-color: #5a735b;
+  color: #ffffff;
+  transform: scale(1.02);
+}
+
+/* === Campo de senha === */
+.login-senha-wrapper {
+  position: relative;
+  background-color: #5a735b; /* força verde no mobile */
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.login-senha-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+  background-color: #5a735b; /* força verde no mobile */
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: inherit;
+  transition: all 0.3s ease;
+}
+
+.login-senha-wrapper input::placeholder {
+  color: #dfe3df;
+}
+
+.login-senha-wrapper input:focus {
+  outline: none;
+  background-color: #5a735b;
+  color: #ffffff;
+  transform: scale(1.02);
+}
+
+/* === Ícone olho === */
+.login-senha-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-senha-toggle svg {
+  stroke: #ffffff !important;
+  width: 18px;
+  height: 18px;
+  transition: stroke 0.3s ease;
+}
+.login-senha-toggle:hover svg {
+  stroke: #ffd750 !important;
+}
+
+/* === Botão === */
+.login-button {
+  background-color: #5a735b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(255, 215, 80, 0.2);
+}
+
+.login-button:hover {
+  background-color: #3c5d3c;
+  transform: translateY(-2px);
+}
+
+/* === Mensagem de erro === */
+.login-error {
+  color: #c53030;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 6px;
+}
+
+/* === Animações === */
+@keyframes slideDown {
+  from {opacity:0;transform:translateY(-50px);}
+  to {opacity:1;transform:translateY(0);}
+}
+@keyframes slideUp {
+  from {opacity:0;transform:translateY(40px);}
+  to {opacity:1;transform:translateY(0);}
+}
+
+/* ==========================================================
+   DESKTOP
+   ========================================================== */
+@media (min-width: 1024px) {
+  .login-container {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(90deg, #ffffff 50%, #5a735b 50%);
+  }
+
+  .login-logo {
+    position: absolute;
+    left: 18%;
+    top: 37%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+  }
+
+  .login-form {
+    position: absolute;
+    left: 62%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    max-width: 415px;
+    width: 100%;
+  }
+
+  .login-label {
+    color: #ffffff;
+    font-size: 15px;
+  }
+
+  .login-input {
+    background-color: #ffffff;
+    color: #5a735b;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    padding: 16px 14px;
+    font-size: 16px;
+    box-shadow: 0 4px 20px rgba(255, 215, 80, 0.15);
+  }
+
+  .login-input::placeholder {
+    color: #5a735b;
+    opacity: 0.8;
+  }
+
+  .login-input:focus {
+    background-color: #ffffff;
+    color: #5a735b;
+  }
+
+  /* === Campo de senha no DESKTOP === */
+  .login-senha-wrapper {
+    background-color: #ffffff; 
+    border-radius: 8px;
+  }
+
+  .login-senha-wrapper input {
+    background-color: #ffffff;
+    color: #5a735b !important; /* ✅ força texto verde */
+    border: 2px solid #ffffff;
+  }
+
+  .login-senha-wrapper input::placeholder {
+    color: #5a735b;
+    opacity: 0.8;
+  }
+
+  .login-senha-wrapper input:focus {
+    background-color: #ffffff;
+    color: #5a735b !important; /* ✅ mantém texto verde no foco */
+  }
+
+  .login-senha-toggle svg {
+    stroke: #5a735b !important;
+  }
+
+  .login-senha-toggle:hover svg {
+    stroke: #ffd750 !important;
+  }
+
+  .login-button {
+    background-color: #ffffff;
+    color: #5a735b;
+    font-weight: 700;
+  }
+
+  .login-button:hover {
+    background-color: #f4f7f4;
+  }
+
+  .login-error {
+    color: #ffffff;
+  }
+}

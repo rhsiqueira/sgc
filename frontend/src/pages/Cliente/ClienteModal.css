@@ -1,0 +1,234 @@
+/* ===== Modal principal ===== */
+.modal {
+  background: #fff;
+  padding: 16px 18px;
+  border-radius: 12px;
+  width: min(96vw, 920px);
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.12);
+  animation: slideDown 0.4s ease-out;
+  scrollbar-width: thin;
+}
+
+.modal::-webkit-scrollbar {
+  width: 6px;
+}
+.modal::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 3px;
+}
+.modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ===== Overlay ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInOverlay 0.25s ease-out;
+  z-index: 999;
+}
+
+/* ===== Botão fechar ===== */
+.modal-close {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.modal-close:hover {
+  background: #eee;
+  transform: scale(1.1);
+}
+
+/* ===== Cabeçalho do modal ===== */
+.modal h4 {
+  margin-bottom: 4px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.modal-etapa {
+  color: #777;
+  font-size: 0.9rem;
+  margin-bottom: 14px;
+}
+
+/* ===== Formulário ===== */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  color: #333;
+  min-width: 0;
+}
+
+.modal-form input,
+.modal-form select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  color: #222;
+  margin-top: 4px;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.modal-form input:focus,
+.modal-form select:focus {
+  border-color: #999;
+  background: #fff;
+}
+
+/* ===== Layout das linhas ===== */
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 600px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Larguras ===== */
+.w-30 input,
+.w-30 select {
+  max-width: 130px;
+  text-align: center;
+}
+
+.w-50,
+.w-60,
+.w-70,
+.w-40 {
+  grid-column: span 1;
+}
+
+/* ===== Input file ===== */
+.input-file {
+  margin-top: 6px;
+  padding: 8px;
+  background: #f3f3f3;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.input-file:hover {
+  background: #eaeaea;
+  border-color: #aaa;
+}
+
+.file-name {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 4px;
+  word-break: break-all;
+}
+
+/* ===== Link de contrato existente ===== */
+.file-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #1a73e8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.file-link:hover {
+  text-decoration: underline;
+  color: #0b56c3;
+}
+
+/* ===== Ações (rodapé do modal) ===== */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  z-index: 2;
+}
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.btn.primary {
+  background: #2e7d32;
+  color: #fff;
+}
+
+.btn.primary:hover {
+  background: #1b5e20;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: #555;
+  border: 1px solid #ccc;
+}
+
+.btn.ghost:hover {
+  background: #f6f6f6;
+}
+
+/* ===== Animações ===== */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

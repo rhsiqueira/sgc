@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import api from "../../services/api";
 import "./Produto.css";
-import { ChevronLeft, Edit3, Trash2, X, PlusCircle } from "lucide-react";
+import { ChevronLeft, Edit3, Trash2, X, PlusCircle, Filter } from "lucide-react";
 
 export default function Produto() {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ export default function Produto() {
   const [pagina, setPagina] = useState(1);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [filtroEstoque, setFiltroEstoque] = useState(""); // ✅ novo estado de filtro
 
   const [openModal, setOpenModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -19,10 +20,10 @@ export default function Produto() {
     id_produto: null,
     nome_produto: "",
     unidade: "",
-    quantidade_atual: 0,
-    quantidade_minima: 0,
-    valor_custo: 0,
-    valor_venda: 0,
+    quantidade_atual: "",
+    quantidade_minima: "",
+    valor_custo: "",
+    valor_venda: "",
     status: "ATIVO",
   });
 
@@ -50,14 +51,28 @@ export default function Produto() {
 
   // === Filtro e paginação ===
   const filtrados = useMemo(() => {
+    let lista = produtos;
+
     const termo = busca.trim().toLowerCase();
-    if (!termo) return produtos;
-    return produtos.filter(
-      (p) =>
-        p.nome_produto?.toLowerCase().includes(termo) ||
-        p.unidade?.toLowerCase().includes(termo)
-    );
-  }, [produtos, busca]);
+    if (termo) {
+      lista = lista.filter(
+        (p) =>
+          p.nome_produto?.toLowerCase().includes(termo) ||
+          p.unidade?.toLowerCase().includes(termo)
+      );
+    }
+
+    // ✅ aplica o filtro de estoque
+    if (filtroEstoque === "baixo") {
+      lista = lista.filter((p) => p.quantidade_atual < p.quantidade_minima);
+    } else if (filtroEstoque === "limite") {
+      lista = lista.filter((p) => p.quantidade_atual === p.quantidade_minima);
+    } else if (filtroEstoque === "acima") {
+      lista = lista.filter((p) => p.quantidade_atual > p.quantidade_minima);
+    }
+
+    return lista;
+  }, [produtos, busca, filtroEstoque]);
 
   const totalPaginas = Math.max(1, Math.ceil(filtrados.length / POR_PAGINA));
   const inicio = (pagina - 1) * POR_PAGINA;
@@ -71,10 +86,14 @@ export default function Produto() {
         id_produto: produto.id_produto,
         nome_produto: produto.nome_produto || "",
         unidade: produto.unidade || "",
-        quantidade_atual: produto.quantidade_atual || 0,
-        quantidade_minima: produto.quantidade_minima || 0,
-        valor_custo: produto.valor_custo || 0,
-        valor_venda: produto.valor_venda || 0,
+        quantidade_atual:
+          produto.quantidade_atual === null ? "" : String(produto.quantidade_atual),
+        quantidade_minima:
+          produto.quantidade_minima === null ? "" : String(produto.quantidade_minima),
+        valor_custo:
+          produto.valor_custo === null ? "" : String(produto.valor_custo),
+        valor_venda:
+          produto.valor_venda === null ? "" : String(produto.valor_venda),
         status: produto.status || "ATIVO",
       });
     } else {
@@ -83,10 +102,10 @@ export default function Produto() {
         id_produto: null,
         nome_produto: "",
         unidade: "",
-        quantidade_atual: 0,
-        quantidade_minima: 0,
-        valor_custo: 0,
-        valor_venda: 0,
+        quantidade_atual: "",
+        quantidade_minima: "",
+        valor_custo: "",
+        valor_venda: "",
         status: "ATIVO",
       });
     }
@@ -99,15 +118,23 @@ export default function Produto() {
   const salvarProduto = async (e) => {
     e.preventDefault();
     try {
+      const payload = {
+        ...formData,
+        quantidade_atual: Number(formData.quantidade_atual) || 0,
+        quantidade_minima: Number(formData.quantidade_minima) || 0,
+        valor_custo: Number(formData.valor_custo) || 0,
+        valor_venda: Number(formData.valor_venda) || 0,
+      };
+
       if (editMode) {
-        await api.put(`/produtos/${formData.id_produto}`, formData);
+        await api.put(`/produtos/${formData.id_produto}`, payload);
         setProdutos((prev) =>
           prev.map((p) =>
-            p.id_produto === formData.id_produto ? { ...p, ...formData } : p
+            p.id_produto === formData.id_produto ? { ...p, ...payload } : p
           )
         );
       } else {
-        const { data } = await api.post("/produtos", formData);
+        const { data } = await api.post("/produtos", payload);
         setProdutos((prev) => [...prev, data.data]);
       }
       fecharModal();
@@ -163,7 +190,7 @@ export default function Produto() {
         <div className="produto-search">
           <input
             type="text"
-            placeholder="Buscar por nome ou unidade..."
+            placeholder="Buscar por nome..."
             value={busca}
             onChange={(e) => {
               setBusca(e.target.value);
@@ -173,6 +200,18 @@ export default function Produto() {
         </div>
 
         <div className="produto-actions">
+          {/* ✅ Novo filtro de estoque */}
+          <select
+            className="filtro-select"
+            value={filtroEstoque}
+            onChange={(e) => setFiltroEstoque(e.target.value)}
+          >
+            <option value="">🧮 Todos</option>
+            <option value="baixo">🔴 Abaixo do mínimo</option>
+            <option value="limite">🟡 No limite</option>
+            <option value="acima">🟢 Acima do mínimo</option>
+          </select>
+
           <button onClick={() => abrirModal(null)}>
             <PlusCircle size={16} style={{ marginRight: 6 }} />
             Adicionar Produto
@@ -288,7 +327,7 @@ export default function Produto() {
         )}
       </main>
 
-      {/* Modal */}
+      {/* Modal permanece inalterado */}
       {openModal && (
         <div className="modal-overlay" onClick={fecharModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -339,10 +378,10 @@ export default function Produto() {
                     onChange={(e) =>
                       setFormData((d) => ({
                         ...d,
-                        quantidade_atual: Number(e.target.value),
+                        quantidade_atual:
+                          e.target.value === "" ? "" : e.target.value,
                       }))
                     }
-                    required
                   />
                 </label>
 
@@ -354,10 +393,10 @@ export default function Produto() {
                     onChange={(e) =>
                       setFormData((d) => ({
                         ...d,
-                        quantidade_minima: Number(e.target.value),
+                        quantidade_minima:
+                          e.target.value === "" ? "" : e.target.value,
                       }))
                     }
-                    required
                   />
                 </label>
               </div>
@@ -372,10 +411,10 @@ export default function Produto() {
                     onChange={(e) =>
                       setFormData((d) => ({
                         ...d,
-                        valor_custo: parseFloat(e.target.value),
+                        valor_custo:
+                          e.target.value === "" ? "" : e.target.value,
                       }))
                     }
-                    required
                   />
                 </label>
 
@@ -388,10 +427,10 @@ export default function Produto() {
                     onChange={(e) =>
                       setFormData((d) => ({
                         ...d,
-                        valor_venda: parseFloat(e.target.value),
+                        valor_venda:
+                          e.target.value === "" ? "" : e.target.value,
                       }))
                     }
-                    required
                   />
                 </label>
               </div>
