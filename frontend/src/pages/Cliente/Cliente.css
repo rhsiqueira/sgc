@@ -1,410 +1,253 @@
-/* =========================================================
-   Cliente.css — versão revisada, fiel ao original, 
-   + suporte ao filtro de status (mesma estética do módulo Usuário)
-   ========================================================= */
-
-/* ===== Estrutura Geral ===== */
-
-
-.cliente-page body {
-  background: #f7f7f7 !important;
-  overflow: auto !important;
-}
+/* ===========================================
+   PÁGINA DO CLIENTE
+=========================================== */
 
 .cliente-page {
+  width: 100%;
   min-height: 100vh;
+  background: #f7f7f7;
+  padding: 18px 14px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #f7f7f7;
-  color: #222;
-  padding: 18px;
-  animation: fadeDown 0.6s ease-out;
+  overflow-x: hidden;
 }
 
-/* ===== Header ===== */
+/* ===========================================
+   HEADER
+=========================================== */
+
 .cliente-header {
   width: 100%;
   max-width: 720px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .cliente-header-top {
   display: flex;
-  align-items: unset;
-  justify-content: start;
-  gap: 78px;
-  width: 100%;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .back-btn {
   background: none;
   border: none;
-  color: #333;
   cursor: pointer;
-  transform: rotate(0deg);
-  transition: transform 0.3s ease, color 0.3s ease;
+  padding: 4px;
 }
 
-.back-btn:hover {
-  transform: rotate(-15deg) scale(1.1);
-  color: #000;
-}
-
-/* ===== Breadcrumb ===== */
 .breadcrumb {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 14px;
-  animation: popIn 0.8s ease-in-out;
 }
 
 .crumb {
   cursor: pointer;
-  color: #777;
-  font-size: 0.9rem;
-  transition: color 0.3s ease;
-}
-
-.crumb:hover {
-  color: #000;
 }
 
 .crumb.active {
-  color: #000;
   font-weight: 600;
+  color: #333;
 }
 
-.sep {
-  color: #aaa;
+.btd-add-cliente {
+  border-radius: 8px;
+  border-style: none;
 }
 
-/* ===== Barra de Busca ===== */
-.cliente-search {
-  width: 100%;
-  max-width: 720px;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-}
+/* ===========================================
+   BUSCA + FILTROS
+=========================================== */
 
 .cliente-search input {
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
   border: 1px solid #ddd;
-  font-size: 0.9rem;
+  margin-bottom: 12px;
   background: #fff;
-  color: #222;
-  outline: none;
-  transition: box-shadow 0.3s ease;
 }
 
-.cliente-search input:focus {
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
-}
-
-/* ==========================================================
-   🔹 Filtro de Status — adicionado igual ao módulo Usuário
-   ========================================================== */
-.filtro-select {
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 10px 10px;
-  background: #fff;
-  font-size: 0.9rem;
-  color: #222;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.filtro-select:focus {
-  border-color: #999;
-  background: #fff;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
-}
-
-/* ===== Botão Adicionar ===== */
 .cliente-actions {
+  display: flex;
+  justify-content: space-between;
   width: 100%;
   max-width: 720px;
-  display: flex;
-  justify-content: center;
-  margin: 10px 0 20px;
+  margin-bottom: 12px;
 }
 
-.cliente-actions button {
-  width: 100%;
-  background: #e9e9e9;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  color: #222;
-  font-weight: 500;
-  padding: 10px 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, background 0.3s ease;
-}
+/* ===========================================
+   GRID DE CARDS
+=========================================== */
 
-.cliente-actions button:hover {
-  transform: scale(1.03);
-  background: #ddd;
-}
-
-/* ===== Conteúdo ===== */
-.cliente-content {
-  width: 100%;
-  max-width: 720px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* ===== Grid dos Cards ===== */
 .cliente-grid {
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
-  min-height: calc((155px + 14px) * 3);
-  align-content: start;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* ===== Card ===== */
+/* ===========================================
+   CARD BASE
+=========================================== */
+
 .cliente-card {
   background: #fff;
   border-radius: 12px;
-  border: 1px solid #ddd;
   padding: 14px 16px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: 0.25s;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .cliente-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
 }
 
-/* ===== Ações ===== */
+/* ===========================================
+   AÇÕES (editar/excluir)
+=========================================== */
+
 .card-actions {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 12px;
+  right: 10px;
   display: flex;
   gap: 6px;
 }
 
 .icon-btn {
-  background: transparent;
+  background: none;
   border: none;
-  color: #333;
   cursor: pointer;
-  transition: transform 0.2s ease, color 0.3s ease;
+  padding: 4px;
+  transition: 0.2s;
 }
 
 .icon-btn:hover {
-  transform: scale(1.15);
-  color: #000;
+  transform: scale(1.18);
 }
 
 .icon-btn.danger:hover {
-  color: #e53935;
+  color: #c62828;
 }
 
-/* ===== Texto e status ===== */
+/* ===========================================
+   CONTEÚDO DO CARD
+=========================================== */
+
 .cliente-name {
+  font-size: 1.15rem;
   font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 8px;
+  padding-right: 40px;
 }
 
 .cliente-line {
   font-size: 0.9rem;
-  margin: 2px 0;
   color: #555;
+  margin: 3px 0;
 }
 
 .status {
-  margin-top: 10px;
-  font-weight: 600;
-  text-align: right;
   font-size: 0.85rem;
-}
-
-.status.ok {
-  color: #3a9b40;
+  font-weight: 700;
+  margin-top: 4px;
+  color: #2e7d32;
 }
 
 .status.off {
   color: #c62828;
 }
 
-/* ===== Expansão ===== */
-.cliente-card.expandido {
-  background: #fdfdfd;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: scale(1.02);
-  z-index: 5;
-  transition: all 0.4s ease-in-out;
-}
-
-.cliente-card.expandido.invertido {
-  transform: scale(1.02);
-  z-index: 6;
-  transform-origin: center center;
-  transition: all 0.4s ease-in-out;
+.cliente-card-expandido {
+  background: #fff !important;
+  padding: 16px 18px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12) !important;
 }
 
 .cliente-card.oculto {
   display: none !important;
 }
 
-/* ===== Detalhes ===== */
 .cliente-detalhes {
-  margin-top: 8px;
-  font-size: 0.88rem;
-  color: #444;
-  border-top: 1px solid #eee;
-  padding-top: 6px;
-  animation: fadeIn 0.3s ease;
-}
-
-/* ===== Skeleton Loader ===== */
-.skeleton {
-  position: relative;
-  overflow: hidden;
-  background: #f1f1f1;
-}
-
-.skeleton::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -150px;
-  width: 150px;
-  height: 100%;
-  background: linear-gradient(90deg,
-      transparent,
-      rgba(255, 255, 255, 0.6),
-      transparent);
-  animation: shimmer 1.5s infinite;
-}
-
-.skeleton-bar {
-  height: 14px;
-  background: #e0e0e0;
-  border-radius: 4px;
-  margin: 6px 0;
-}
-
-.w-60 {
-  width: 60%;
-}
-
-.w-50 {
-  width: 50%;
-}
-
-.w-40 {
-  width: 40%;
-}
-
-/* ===== Paginação ===== */
-.paginacao {
-  width: 100%;
-  max-width: 720px;
+  margin-top: 6px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+.det-bloco {
+  padding: 6px 2px;
+  background: transparent !important;
+  border: none !important;
+}
+
+.det-bloco h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2f855a;
+  margin-bottom: 6px;
+}
+
+.det-bloco p {
+  margin: 2px 0;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+/* ===========================================
+   PAGINAÇÃO
+=========================================== */
+
+.paginacao {
+  margin-top: 16px;
+  display: flex;
   justify-content: center;
-  gap: 0px;
-  position: fixed;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px 0;
-  z-index: 10;
+  align-items: center;
+  gap: 6px;
 }
 
 .page-btn {
-  background: #e9e9e9;
-  border: 1px solid #ccc;
-  border-radius: 8px;
   padding: 8px 16px;
-  font-weight: 500;
-  color: #222;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #eee;
   cursor: pointer;
-  transition: transform 0.3s ease, background 0.3s ease;
 }
 
 .page-btn:hover {
-  transform: rotate(-3deg) scale(1.05);
   background: #ddd;
 }
 
 .page-btn:disabled {
-  background: #f0f0f0;
-  color: #999;
+  background: #f7f7f7;
   cursor: not-allowed;
 }
 
-.page-info {
-  font-size: 0.95rem;
-  color: #444;
-  min-width: 60px;
-  text-align: center;
+/* ===========================================
+   ANIMAÇÕES
+=========================================== */
+
+.fade-in {
+  animation: fade-in 0.25s ease;
 }
 
-/* ===== Animações Locais ===== */
-@keyframes fadeIn {
+@keyframes fade-in {
   from {
     opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes popIn {
-  0% {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes fadeDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(8px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes shimmer {
-  100% {
-    left: 100%;
   }
 }

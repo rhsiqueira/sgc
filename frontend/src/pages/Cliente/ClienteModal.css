@@ -53,7 +53,7 @@
   transform: scale(1.1);
 }
 
-/* ===== Cabeçalho do modal ===== */
+/* ===== Cabeçalho ===== */
 .modal h4 {
   margin-bottom: 4px;
   font-size: 1.1rem;
@@ -66,7 +66,7 @@
   margin-bottom: 14px;
 }
 
-/* ===== Formulário ===== */
+/* ===== Form ===== */
 .modal-form {
   display: flex;
   flex-direction: column;
@@ -102,35 +102,41 @@
   background: #fff;
 }
 
-/* ===== Layout das linhas ===== */
-.row {
+/* ===========================================================
+   AQUI ESTAVA O PROBLEMA — AGORA TEM .row COMO GRID  👇👇👇
+=========================================================== */
+
+.modal-form .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-/* ===== Responsivo ===== */
+/* RESPONSIVO */
 @media (max-width: 600px) {
-  .row {
+  .modal-form .row {
     grid-template-columns: 1fr;
   }
 }
 
-/* ===== Larguras ===== */
-.w-30 input,
-.w-30 select {
-  max-width: 130px;
-  text-align: center;
+/* ===== Ajustes solicitados ===== */
+.modal-form .row.resp-cel {
+  grid-template-columns: 2fr 1fr !important;
 }
 
-.w-50,
-.w-60,
-.w-70,
-.w-40 {
-  grid-column: span 1;
+.modal-form .row.email-fixo {
+  grid-template-columns: 2fr 1fr !important;
 }
 
-/* ===== Input file ===== */
+.modal-form .row.bairro-numero {
+  grid-template-columns: 2fr 1fr !important;
+}
+
+.modal-form .row.cidade-uf {
+  grid-template-columns: 2fr 0.5fr !important;
+}
+
+/* ===== Input File ===== */
 .input-file {
   margin-top: 6px;
   padding: 8px;
@@ -146,30 +152,7 @@
   border-color: #aaa;
 }
 
-.file-name {
-  font-size: 0.85rem;
-  color: #555;
-  margin-top: 4px;
-  word-break: break-all;
-}
-
-/* ===== Link de contrato existente ===== */
-.file-link {
-  display: inline-block;
-  margin-top: 6px;
-  font-size: 0.85rem;
-  color: #1a73e8;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.file-link:hover {
-  text-decoration: underline;
-  color: #0b56c3;
-}
-
-/* ===== Ações (rodapé do modal) ===== */
+/* ===== Footer ===== */
 .modal-actions {
   display: flex;
   justify-content: space-between;
@@ -212,7 +195,7 @@
   background: #f6f6f6;
 }
 
-/* ===== Animações ===== */
+/* ===== Animations ===== */
 @keyframes slideDown {
   from {
     opacity: 0;

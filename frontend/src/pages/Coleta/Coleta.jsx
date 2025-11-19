@@ -11,7 +11,7 @@ export default function Coleta() {
   const [coletas, setColetas] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [busca, setBusca] = useState("");
-  const [filtroStatus, setFiltroStatus] = useState(""); // ✅ novo filtro
+  const [filtroStatus, setFiltroStatus] = useState("");
   const [pagina, setPagina] = useState(1);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -22,30 +22,28 @@ export default function Coleta() {
 
   const POR_PAGINA = 3;
 
-  // === 🧭 Buscar coletas e clientes ===
+  // =============================
+  // Fetch Coletas
+  // =============================
   const fetchColetas = async () => {
     try {
       setCarregando(true);
       const { data } = await api.get("/coletas");
-      const lista = Array.isArray(data)
-        ? data
-        : data.data || data.coletas || [];
+      const lista = Array.isArray(data) ? data : data.data || [];
       setColetas(lista);
     } catch (e) {
-      console.error(e);
       setErro("Não foi possível carregar as coletas.");
     } finally {
-      setTimeout(() => setCarregando(false), 600);
+      setTimeout(() => setCarregando(false), 500);
     }
   };
 
+  // Fetch Clientes
   const fetchClientes = async () => {
     try {
       const { data } = await api.get("/clientes");
-      const lista = Array.isArray(data)
-        ? data
-        : data.data || data.clientes || [];
-      setClientes(lista);
+      const lista = Array.isArray(data.data) ? data.data : [];
+      setClientes(lista.filter((c) => c.status === "ATIVO"));
     } catch (e) {
       console.error("Erro ao carregar clientes:", e);
     }
@@ -56,40 +54,51 @@ export default function Coleta() {
     fetchClientes();
   }, []);
 
-  // === 🔍 Filtro e ordenação ===
+  // =============================
+  // Filtragem & Ordenação
+  // =============================
   const filtradas = useMemo(() => {
     const termo = busca.trim().toLowerCase();
-    let base = [...coletas].sort(
-      (a, b) => new Date(b.data_coleta) - new Date(a.data_coleta)
-    );
+    let base = [...coletas];
+
+    base.sort((a, b) => new Date(b.data_coleta) - new Date(a.data_coleta));
 
     if (termo) {
-      base = base.filter(
-        (c) =>
+      base = base.filter((c) => {
+        const cli = clientes.find((x) => x.id_cliente === c.id_cliente);
+        const nome = cli?.nome_fantasia?.toLowerCase() || "";
+        const razao = cli?.razao_social?.toLowerCase() || "";
+        const cnpj = cli?.cnpj_cpf || "";
+
+        return (
+          nome.includes(termo) ||
+          razao.includes(termo) ||
+          cnpj.includes(termo) ||
           c.status?.toLowerCase().includes(termo) ||
           c.observacao?.toLowerCase().includes(termo) ||
           c.id_coleta?.toString().includes(termo)
-      );
+        );
+      });
     }
 
-    // ✅ aplica o filtro de status
-    if (filtroStatus) {
+    if (filtroStatus)
       base = base.filter(
         (c) => c.status?.toUpperCase() === filtroStatus.toUpperCase()
       );
-    }
 
     return base;
-  }, [coletas, busca, filtroStatus]);
+  }, [coletas, clientes, busca, filtroStatus]);
 
   const totalPaginas = Math.max(1, Math.ceil(filtradas.length / POR_PAGINA));
   const inicio = (pagina - 1) * POR_PAGINA;
   const paginaAtual = filtradas.slice(inicio, inicio + POR_PAGINA);
 
-  // === 🧩 Modal ===
-  const abrirModal = (coleta = null) => {
-    setEditMode(!!coleta);
-    setColetaSelecionada(coleta);
+  // =============================
+  // Modal
+  // =============================
+  const abrirModal = (c = null) => {
+    setEditMode(!!c);
+    setColetaSelecionada(c);
     setOpenModal(true);
   };
 
@@ -98,60 +107,46 @@ export default function Coleta() {
     setColetaSelecionada(null);
   };
 
-  // === 💾 Salvar Coleta ===
   const salvarColeta = async (dados) => {
     try {
-      if (editMode && dados.id_coleta) {
+      if (editMode) {
         const { data } = await api.put(`/coletas/${dados.id_coleta}`, dados);
-        const atualizada = data?.data || dados;
         setColetas((prev) =>
           prev.map((c) =>
-            c.id_coleta === dados.id_coleta ? atualizada : c
+            c.id_coleta === dados.id_coleta ? data?.data || dados : c
           )
         );
       } else {
         const { data } = await api.post("/coletas", dados);
-        const nova =
-          data?.data || (Array.isArray(data) ? data[0] : data) || dados;
-        setColetas((prev) => [...prev, nova]);
+        setColetas((prev) => [data?.data || data, ...prev]);
       }
-
       fecharModal();
     } catch (e) {
-      console.error("Erro ao salvar coleta:", e);
-      alert("Não foi possível salvar a coleta.");
+      console.error(e);
+      alert("Erro ao salvar coleta.");
     }
   };
 
-  // === ❌ Excluir ===
   const excluirColeta = async (c) => {
-    const ok = window.confirm(`Excluir coleta #${c.id_coleta}?`);
-    if (!ok) return;
+    if (!window.confirm(`Excluir coleta #${c.id_coleta}?`)) return;
     try {
       await api.delete(`/coletas/${c.id_coleta}`);
       setColetas((prev) => prev.filter((x) => x.id_coleta !== c.id_coleta));
-    } catch (e) {
-      console.error(e);
-      alert("Erro ao excluir coleta.");
+    } catch {
+      alert("Erro ao excluir.");
     }
   };
 
-  // === 🧮 Utilidades ===
-  const formatarData = (data) => {
-    if (!data) return "—";
-    const d = new Date(data);
-    return d.toLocaleDateString("pt-BR");
-  };
+  const clientePorId = (id) => clientes.find((c) => c.id_cliente === id);
 
-  const nomeCliente = (id) =>
-    clientes.find((c) => c.id_cliente === id)?.nome_fantasia ||
-    clientes.find((c) => c.id_cliente === id)?.razao_social ||
-    "—";
+  const formatarData = (data) =>
+    data ? new Date(data).toLocaleDateString("pt-BR") : "—";
 
-  // === 🧱 Render ===
+  // =============================
+  // RENDER
+  // =============================
   return (
     <div className="coleta-page enter-down">
-      {/* Header */}
       <header className="coleta-header">
         <div className="coleta-header-top">
           <button className="back-btn" onClick={() => navigate("/home")}>
@@ -170,7 +165,7 @@ export default function Coleta() {
         <div className="coleta-search">
           <input
             type="text"
-            placeholder="Buscar por status, observação ou ID…"
+            placeholder="Buscar por cliente, status, observação ou ID…"
             value={busca}
             onChange={(e) => {
               setBusca(e.target.value);
@@ -179,149 +174,202 @@ export default function Coleta() {
           />
         </div>
 
-        <div className="coleta-actions">
-          {/* ✅ Novo filtro de status */}
+        <div className="coleta-actions" style={{ gap: 8 }}>
           <select
             className="filtro-select"
             value={filtroStatus}
-            onChange={(e) => setFiltroStatus(e.target.value)}
+            onChange={(e) => {
+              setFiltroStatus(e.target.value);
+              setPagina(1);
+            }}
           >
             <option value="">📋 Todas</option>
-            <option value="EM ANDAMENTO">🟡 Em Andamento</option>
+            <option value="EM_ANDAMENTO">🟡 Em Andamento</option>
             <option value="CONCLUIDA">🟢 Concluídas</option>
             <option value="PENDENTE">🟠 Pendentes</option>
             <option value="INATIVA">🔴 Inativas</option>
+            <option value="CANCELADA">⛔ Canceladas</option>
           </select>
 
-          <button onClick={() => abrirModal(null)}>
-            <PlusCircle size={16} style={{ marginRight: 6 }} />
+          <button style={{ width: "60%" }} onClick={() => abrirModal(null)}>
+            <PlusCircle size={16} />
             Nova Coleta
           </button>
         </div>
       </header>
 
-      {/* Conteúdo */}
+      {/* CONTENT */}
       <main className="coleta-content">
-        {carregando && (
-          <div className="coleta-grid">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="coleta-card skeleton">
-                <div className="skeleton-bar w-60"></div>
-                <div className="skeleton-bar w-50"></div>
-                <div className="skeleton-bar w-40"></div>
-                <div className="skeleton-pill"></div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="coleta-grid">
+          {paginaAtual.map((c) => {
+            const cli = clientePorId(c.id_cliente);
+            const isExpandido = expandido === c.id_coleta;
 
-        {!carregando && erro && <p className="error">{erro}</p>}
-        {!carregando && !erro && paginaAtual.length === 0 && (
-          <p className="hint">Nenhuma coleta encontrada.</p>
-        )}
+            let cardCls = "coleta-card fade-in";
+            if (isExpandido) cardCls += " expandido";
+            if (expandido && !isExpandido) cardCls += " oculto";
 
-        {!carregando && !erro && (
-          <>
-            <div className="coleta-grid">
-              {paginaAtual.map((c) => {
-                const cliente = clientes.find(
-                  (cli) => cli.id_cliente === c.id_cliente
-                );
-                const isExpandido = expandido === c.id_coleta;
-
-                return (
-                  <article
-                    key={c.id_coleta}
-                    className={`coleta-card fade-in ${
-                      isExpandido ? "expandido" : ""
-                    }`}
-                    onClick={() =>
-                      setExpandido(isExpandido ? null : c.id_coleta)
-                    }
+            return (
+              <article
+                key={c.id_coleta}
+                className={cardCls}
+                onClick={() =>
+                  setExpandido(isExpandido ? null : c.id_coleta)
+                }
+              >
+                <div className="card-actions">
+                  <button
+                    className="icon-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      abrirModal(c);
+                    }}
                   >
-                    <div className="card-actions">
-                      <button
-                        className="icon-btn"
-                        title="Editar"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          abrirModal(c);
-                        }}
-                      >
-                        <Edit3 size={18} />
-                      </button>
-                      <button
-                        className="icon-btn danger"
-                        title="Excluir"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          excluirColeta(c);
-                        }}
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                    <Edit3 size={18} />
+                  </button>
+                  <button
+                    className="icon-btn danger"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      excluirColeta(c);
+                    }}
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+
+                <h3 className="coleta-id">Coleta #{c.id_coleta}</h3>
+                <h4 className="coleta-nome">
+                  {cli?.nome_fantasia || cli?.razao_social || "—"}
+                </h4>
+
+                <p className="coleta-line">
+                  <strong>Data:</strong> {formatarData(c.data_coleta)}
+                </p>
+
+                <p className="coleta-line">
+                  <strong>Total:</strong>{" "}
+                  {c.quantidade_total ? `${c.quantidade_total} L` : "—"}
+                </p>
+
+                <p className={`status ${c.status === "CONCLUIDA" ? "ok" : ""}`}>
+                  {c.status}
+                </p>
+
+                {/* EXPANDIDO */}
+                {isExpandido && (
+                  <div className="coleta-detalhes fade-in">
+                    {/* BLOCO CLIENTE */}
+                    <div className="coleta-bloco">
+                      <h4 className="coleta-bloco-titulo">Cliente</h4>
+
+                      <p className="coleta-bloco-item">
+                        <strong>Responsável:</strong>{" "}
+                        {cli?.nome_responsavel || "—"}
+                      </p>
+
+                      <p className="coleta-bloco-item">
+                        <strong>Telefone:</strong>{" "}
+                        {cli?.telefone_celular ||
+                          cli?.telefone_fixo ||
+                          "—"}
+                      </p>
+
+                      <p className="coleta-bloco-item">
+                        <strong>Endereço:</strong>{" "}
+                        {cli
+                          ? `${cli.endereco || "—"}, ${
+                              cli.numero || ""
+                            } - ${cli.bairro || ""} - ${
+                              cli.cidade || ""
+                            } / ${cli.estado || ""}`
+                          : "—"}
+                      </p>
+
+                      <p className="coleta-bloco-item">
+                        <strong>Funcionamento:</strong>{" "}
+                        {cli?.dias_funcionamento || "—"}
+                      </p>
                     </div>
 
-                    <h3 className="coleta-id">Coleta #{c.id_coleta}</h3>
-                    <h4 className="coleta-nome">
-                      {cliente?.nome_fantasia || "—"}
-                    </h4>
+                    {/* BLOCO COLETA */}
+                    <div className="coleta-bloco">
+                      <h4 className="coleta-bloco-titulo">
+                        Detalhes da Coleta
+                      </h4>
 
-                    <p className="coleta-line">
-                      <strong>Data:</strong> {formatarData(c.data_coleta)}
-                    </p>
-                    <p className="coleta-line">
-                      <strong>Qtd Total:</strong> {c.quantidade_total ?? "—"}
-                    </p>
+                      {c.observacao && (
+                        <p className="coleta-bloco-item">
+                          <strong>Observação:</strong> {c.observacao}
+                        </p>
+                      )}
 
-                    {isExpandido && (
-                      <div className="coleta-detalhes fade-in">
-                        <p>{cliente?.nome_responsavel || "—"}</p>
-                        <p>{cliente?.endereco || "—"}</p>
-                        <p>{cliente?.dias_funcionamento || "—"}</p>
-                      </div>
-                    )}
+                      {/* COMPENSAÇÕES */}
+                      {(!c.compensacoes || !c.compensacoes.length) &&
+                        (!c.produtos || !c.produtos.length) && (
+                          <p className="coleta-bloco-item">
+                            Nenhuma compensação registrada.
+                          </p>
+                        )}
 
-                    <p
-                      className={`status ${
-                        c.status === "CONCLUIDA"
-                          ? "ok"
-                          : c.status === "CANCELADA" || c.status === "INATIVA"
-                          ? "off"
-                          : ""
-                      }`}
-                    >
-                      {c.status}
-                    </p>
-                  </article>
-                );
-              })}
-            </div>
+                      {c.compensacoes?.map((cp) => (
+                        <p
+                          key={cp.id_coleta_compensacao}
+                          className="coleta-bloco-item"
+                        >
+                          <strong>
+                            {cp.id_tipo === 1
+                              ? "Pagamento Imediato (PIX)"
+                              : cp.id_tipo === 2
+                              ? "Crédito em Loja"
+                              : "Troca por Produto"}
+                            :
+                          </strong>{" "}
+                          {cp.quantidade} L
+                        </p>
+                      ))}
 
-            {totalPaginas > 1 && (
-              <div className="paginacao">
-                <button
-                  className="page-btn"
-                  disabled={pagina === 1}
-                  onClick={() => setPagina((p) => Math.max(1, p - 1))}
-                >
-                  Anterior
-                </button>
-                <span className="page-info">
-                  {pagina} / {totalPaginas}
-                </span>
-                <button
-                  className="page-btn"
-                  disabled={pagina === totalPaginas}
-                  onClick={() =>
-                    setPagina((p) => Math.min(totalPaginas, p + 1))
-                  }
-                >
-                  Próxima
-                </button>
-              </div>
-            )}
-          </>
+                      {c.produtos?.map((p) => (
+                        <p
+                          key={p.id_coleta_produto}
+                          className="coleta-bloco-item"
+                        >
+                          <strong>{p.produto?.nome_produto}</strong>:{" "}
+                          {p.quantidade} un
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+
+        {!expandido && totalPaginas > 1 && (
+          <div className="paginacao">
+            <button
+              className="page-btn"
+              disabled={pagina === 1}
+              onClick={() => setPagina((p) => Math.max(1, p - 1))}
+            >
+              Anterior
+            </button>
+
+            <span className="page-info">
+              {pagina} / {totalPaginas}
+            </span>
+
+            <button
+              className="page-btn"
+              disabled={pagina === totalPaginas}
+              onClick={() =>
+                setPagina((p) => Math.min(totalPaginas, p + 1))
+              }
+            >
+              Próxima
+            </button>
+          </div>
         )}
       </main>
 

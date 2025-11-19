@@ -1,10 +1,10 @@
 // C:\dev\sgc\frontend\src\pages\Cliente\Cliente.jsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import "./Cliente.css";
-import { ChevronLeft, Edit3, Trash2, PlusCircle } from "lucide-react";
-import ClienteModal from "./ClienteModal"; // mantém exatamente o que já existe
+import { ChevronLeft, Edit3, Trash2, PlusCircle, FileText, Calendar, User } from "lucide-react";
+import ClienteModal from "./ClienteModal";
 
 export default function Cliente() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export default function Cliente() {
   const [erro, setErro] = useState("");
   const [expandido, setExpandido] = useState(null);
 
-  // ===== 🔹 Controle do Modal =====
+  // Modal
   const [openModal, setOpenModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [etapa, setEtapa] = useState(1);
@@ -47,10 +47,12 @@ export default function Cliente() {
   });
 
   const POR_PAGINA = 3;
+  const API_BASE =
+    process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000/api";
 
-  // =====================================================
-  // 🔹 FETCH — agora com filtros iguais ao módulo Usuário
-  // =====================================================
+  // ============================
+  // FETCH CLIENTES
+  // ============================
   const fetchClientes = async () => {
     try {
       setCarregando(true);
@@ -58,8 +60,8 @@ export default function Cliente() {
       const { data } = await api.get("/clientes", {
         params: {
           status: filtroStatus || "",
-          busca: busca || ""
-        }
+          busca: busca || "",
+        },
       });
 
       const lista = Array.isArray(data.data) ? data.data : [];
@@ -68,7 +70,7 @@ export default function Cliente() {
       console.error(e);
       setErro("Não foi possível carregar os clientes.");
     } finally {
-      setTimeout(() => setCarregando(false), 600);
+      setTimeout(() => setCarregando(false), 500);
     }
   };
 
@@ -76,16 +78,21 @@ export default function Cliente() {
     fetchClientes();
   }, [filtroStatus, busca]);
 
-  // =====================================================
-  // 🔹 Paginação — igualzinho ao módulo Usuário
-  // =====================================================
+  // quando trocar de página/filtro/busca, tira expansão
+  useEffect(() => {
+    setExpandido(null);
+  }, [pagina, filtroStatus, busca]);
+
+  // ============================
+  // PAGINAÇÃO
+  // ============================
   const totalPaginas = Math.max(1, Math.ceil(clientes.length / POR_PAGINA));
   const inicio = (pagina - 1) * POR_PAGINA;
   const paginaAtual = clientes.slice(inicio, inicio + POR_PAGINA);
 
-  // =====================================================
-  // 🔹 Modal
-  // =====================================================
+  // ============================
+  // MODAL
+  // ============================
   const abrirModal = (cliente = null) => {
     if (cliente) {
       setEditMode(true);
@@ -132,13 +139,13 @@ export default function Cliente() {
     setEtapa(1);
   };
 
-  // =====================================================
-  // 🔹 Salvar / Atualizar — mantém tudo igual
-  // =====================================================
   const salvarCliente = async () => {
     try {
       if (editMode) {
-        const { data } = await api.put(`/clientes/${formData.id_cliente}`, formData);
+        const { data } = await api.put(
+          `/clientes/${formData.id_cliente}`,
+          formData
+        );
         if (data?.data) {
           setClientes((prev) =>
             prev.map((c) =>
@@ -171,9 +178,6 @@ export default function Cliente() {
     }
   };
 
-  // =====================================================
-  // 🔹 Excluir
-  // =====================================================
   const excluirCliente = async (c) => {
     const ok = window.confirm(`Excluir o cliente "${c.razao_social}"?`);
     if (!ok) return;
@@ -186,9 +190,16 @@ export default function Cliente() {
     }
   };
 
-  // =====================================================
-  // 🔹 RENDER
-  // =====================================================
+  const formatarData = (str) => {
+    if (!str) return null;
+    const d = new Date(str);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString("pt-BR");
+  };
+
+  // ============================
+  // RENDER
+  // ============================
   return (
     <div className="cliente-page enter-down">
       <header className="cliente-header">
@@ -199,7 +210,9 @@ export default function Cliente() {
         </div>
 
         <nav className="breadcrumb">
-          <span className="crumb" onClick={() => navigate("/home")}>Home</span>
+          <span className="crumb" onClick={() => navigate("/home")}>
+            Home
+          </span>
           <span className="sep">›</span>
           <span className="crumb active">Clientes</span>
         </nav>
@@ -239,7 +252,7 @@ export default function Cliente() {
             <option value="">📋 Todos</option>
           </select>
 
-          <button style={{ width: "60%" }} onClick={() => abrirModal(null)}>
+          <button  className="btd-add-cliente" style={{ width: "60%" }} onClick={() => abrirModal(null)}>
             <PlusCircle size={16} style={{ marginRight: 6 }} />
             Adicionar Cliente
           </button>
@@ -264,38 +277,27 @@ export default function Cliente() {
           <p className="hint">Nenhum cliente encontrado.</p>
         )}
 
-        {!carregando && !erro && (
+        {!carregando && !erro && paginaAtual.length > 0 && (
           <>
             <div className="cliente-grid">
-              {paginaAtual.map((c, index) => {
-                const isPrimeiro = index === 0;
-                const isTerceiro = index === 2;
+              {paginaAtual.map((c) => {
                 const isExpandido = expandido === c.id_cliente;
 
-                let classes = "cliente-card fade-in";
-
-                if (isExpandido) {
-                  classes += " expandido";
-                  if (isTerceiro) classes += " invertido";
-                } else if (expandido) {
-                  if (
-                    (expandido === paginaAtual[0]?.id_cliente ||
-                      expandido === paginaAtual[1]?.id_cliente) &&
-                    isTerceiro
-                  ) {
-                    classes += " oculto";
-                  }
-                  if (expandido === paginaAtual[2]?.id_cliente && isPrimeiro) {
-                    classes += " oculto";
-                  }
+                // 🔥 se alguém está expandido, só rende ele
+                if (expandido && !isExpandido) {
+                  return null;
                 }
 
                 return (
                   <article
                     key={c.id_cliente}
-                    className={classes}
+                    className={
+                      isExpandido
+                        ? "cliente-card cliente-card-expandido fade-in"
+                        : "cliente-card fade-in"
+                    }
                     onClick={() =>
-                      setExpandido(expandido === c.id_cliente ? null : c.id_cliente)
+                      setExpandido(isExpandido ? null : c.id_cliente)
                     }
                   >
                     <div className="card-actions">
@@ -321,24 +323,117 @@ export default function Cliente() {
                       </button>
                     </div>
 
-                    <h3 className="cliente-name">{c.nome_fantasia || "—"}</h3>
+                    {/* CABEÇALHO DO CARD */}
+                    <h3 className="cliente-name">
+                      {c.nome_fantasia || "—"}
+                    </h3>
                     <p className="cliente-line">{c.razao_social || "—"}</p>
                     <p className="cliente-line">{c.cnpj_cpf || "—"}</p>
-                    <p className="cliente-line">{c.dias_funcionamento || "—"}</p>
+                    <p className="cliente-line">
+                      {c.dias_funcionamento || "—"}
+                    </p>
 
                     <p className={`status ${c.status === "ATIVO" ? "ok" : "off"}`}>
                       {c.status}
                     </p>
 
-                    {expandido === c.id_cliente && (
+                    {/* BLOCO EXPANDIDO */}
+                    {isExpandido && (
                       <div className="cliente-detalhes">
-                        <p><strong>Responsável:</strong> {c.nome_responsavel || "—"}</p>
-                        <p><strong>Celular:</strong> {c.telefone_celular || "—"}</p>
-                        <p><strong>E-mail:</strong> {c.email_comercial || "—"}</p>
-                        <p><strong>Fixo:</strong> {c.telefone_fixo || "—"}</p>
-                        <p><strong>Endereço:</strong> {c.endereco || "—"}, {c.numero || ""}</p>
-                        <p><strong>Cidade/UF:</strong> {c.cidade || "—"} / {c.estado || "—"}</p>
-                        <p><strong>CEP:</strong> {c.cep || "—"}</p>
+                        {/* Contatos */}
+                        <div className="det-bloco">
+                          <h4>Contatos</h4>
+                          <p>
+                            <strong>Responsável:</strong>{" "}
+                            {c.nome_responsavel || "—"}
+                          </p>
+                          <p>
+                            <strong>Celular:</strong>{" "}
+                            {c.telefone_celular || "—"}
+                          </p>
+                          <p>
+                            <strong>E-mail:</strong>{" "}
+                            {c.email_comercial || "—"}
+                          </p>
+                          <p>
+                            <strong>Fixo:</strong>{" "}
+                            {c.telefone_fixo || "—"}
+                          </p>
+                        </div>
+
+                        {/* Endereço */}
+                        <div className="det-bloco">
+                          <h4>Endereço</h4>
+                          <p>
+                            <strong>Endereço:</strong>{" "}
+                            {c.endereco || "—"}, {c.numero || "S/N"}
+                          </p>
+                          <p>
+                            <strong>Bairro:</strong> {c.bairro || "—"}
+                          </p>
+                          <p>
+                            <strong>Cidade/UF:</strong>{" "}
+                            {c.cidade || "—"} / {c.estado || "—"}
+                          </p>
+                          <p>
+                            <strong>CEP:</strong> {c.cep || "—"}
+                          </p>
+                        </div>
+
+                        {/* Observações / Funcionamento */}
+                        <div className="det-bloco">
+                          <h4>Funcionamento</h4>
+                          <p>
+                            <strong>Dias:</strong>{" "}
+                            {c.dias_funcionamento || "—"}
+                          </p>
+                          <p>
+                            <strong>Observações:</strong>{" "}
+                            {c.observacoes || "—"}
+                          </p>
+                        </div>
+
+                        {/* Contrato */}
+                        <div className="det-bloco">
+                          <h4>Contrato</h4>
+                          {!c.contrato || !c.contrato.url_arquivo ? (
+                            <p>Nenhum contrato vinculado.</p>
+                          ) : (
+                            <>
+                              <a
+                                href={`${API_BASE}/../storage/${c.contrato.url_arquivo}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="link-contrato"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <FileText size={16} />
+                                <span>
+                                  {c.contrato.url_arquivo
+                                    .split("/")
+                                    .pop()}
+                                </span>
+                              </a>
+
+                              <div className="contrato-meta">
+                                {c.contrato.usuario_upload && (
+                                  <span>
+                                    <User size={13} />{" "}
+                                    {c.contrato.usuario_upload}
+                                  </span>
+                                )}
+                                {c.contrato.data_upload && (
+                                  <span>
+                                    <Calendar size={13} />{" "}
+                                    {formatarData(
+                                      c.contrato.data_upload
+                                    ) || "—"}
+                                  </span>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     )}
                   </article>
@@ -346,7 +441,8 @@ export default function Cliente() {
               })}
             </div>
 
-            {totalPaginas > 1 && (
+            {/* Paginação some quando estiver expandido */}
+            {!expandido && totalPaginas > 1 && (
               <div className="paginacao">
                 <button
                   className="page-btn"
@@ -361,7 +457,9 @@ export default function Cliente() {
                 <button
                   className="page-btn"
                   disabled={pagina === totalPaginas}
-                  onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+                  onClick={() =>
+                    setPagina((p) => Math.min(totalPaginas, p + 1))
+                  }
                 >
                   Próxima
                 </button>

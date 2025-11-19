@@ -2,7 +2,7 @@
 import React from "react";
 import { X, FileText, Calendar, User } from "lucide-react";
 import api from "../../services/api";
-import "./Cliente.css";
+import "./ClienteModal.css";
 
 export default function ClienteModal({
   open,
@@ -49,11 +49,9 @@ export default function ClienteModal({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // 1️⃣ Salva cliente primeiro
       const result = await onSave();
       const clienteId = result?.id_cliente || formData?.id_cliente;
 
-      // 2️⃣ Envia arquivo PDF (se houver)
       if (formData.contrato && clienteId) {
         const formDataUpload = new FormData();
         formDataUpload.append("id_cliente", clienteId);
@@ -135,8 +133,9 @@ export default function ClienteModal({
                 />
               </label>
 
-              <div className="row">
-                <label className="w-50">
+              {/* ===== Linha 1 — Nome Responsável | Celular ===== */}
+              <div className="row resp-cel">
+                <label>
                   Nome do Responsável
                   <input
                     type="text"
@@ -148,7 +147,7 @@ export default function ClienteModal({
                   />
                 </label>
 
-                <label className="w-50">
+                <label className="w-small">
                   Telefone Celular
                   <input
                     type="text"
@@ -160,8 +159,9 @@ export default function ClienteModal({
                 </label>
               </div>
 
-              <div className="row">
-                <label className="w-50">
+              {/* ===== Linha 2 — Email | Fixo ===== */}
+              <div className="row email-fixo">
+                <label>
                   E-mail Comercial
                   <input
                     type="email"
@@ -173,7 +173,7 @@ export default function ClienteModal({
                   />
                 </label>
 
-                <label className="w-50">
+                <label className="w-small">
                   Telefone Fixo
                   <input
                     type="text"
@@ -185,9 +185,7 @@ export default function ClienteModal({
                 </label>
               </div>
 
-              {/* =========================
-                 BLOCO DE CONTRATO
-              ========================== */}
+              {/* ======== CONTRATO (PDF) ======== */}
               <label>
                 <span
                   style={{
@@ -317,8 +315,9 @@ export default function ClienteModal({
                 />
               </label>
 
-              <div className="row">
-                <label className="w-70">
+              {/* ===== Linha Bairro | Número ===== */}
+              <div className="row bairro-numero">
+                <label>
                   Bairro
                   <input
                     type="text"
@@ -331,7 +330,7 @@ export default function ClienteModal({
                   />
                 </label>
 
-                <label className="w-30">
+                <label className="w-small">
                   Número
                   <input
                     type="text"
@@ -345,8 +344,9 @@ export default function ClienteModal({
                 </label>
               </div>
 
-              <div className="row">
-                <label className="w-70">
+              {/* ===== Linha Cidade | UF ===== */}
+              <div className="row cidade-uf">
+                <label>
                   Cidade
                   <input
                     type="text"
@@ -359,50 +359,42 @@ export default function ClienteModal({
                   />
                 </label>
 
-                <label className="w-30">
+                <label className="w-small">
                   UF
                   <input
                     type="text"
                     maxLength={2}
                     value={formData.estado}
                     onChange={(e) =>
-                      handleChange(
-                        "estado",
-                        e.target.value.toUpperCase()
-                      )
+                      handleChange("estado", e.target.value.toUpperCase())
                     }
                     required
                   />
                 </label>
               </div>
 
-              <div className="row">
-                <label className="w-50">
-                  CEP
-                  <input
-                    type="text"
-                    value={formData.cep}
-                    onChange={(e) =>
-                      handleChange("cep", formatarCEP(e.target.value))
-                    }
-                  />
-                </label>
+              <label>
+                CEP
+                <input
+                  type="text"
+                  value={formData.cep}
+                  onChange={(e) =>
+                    handleChange("cep", formatarCEP(e.target.value))
+                  }
+                />
+              </label>
 
-                <label className="w-50">
-                  Dias de Funcionamento
-                  <input
-                    type="text"
-                    maxLength={60}
-                    value={formData.dias_funcionamento}
-                    onChange={(e) =>
-                      handleChange(
-                        "dias_funcionamento",
-                        e.target.value
-                      )
-                    }
-                  />
-                </label>
-              </div>
+              <label>
+                Dias de Funcionamento
+                <input
+                  type="text"
+                  maxLength={60}
+                  value={formData.dias_funcionamento}
+                  onChange={(e) =>
+                    handleChange("dias_funcionamento", e.target.value)
+                  }
+                />
+              </label>
 
               <label>
                 Observações
