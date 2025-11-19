@@ -200,153 +200,174 @@ export default function Coleta() {
 
       {/* CONTENT */}
       <main className="coleta-content">
-        <div className="coleta-grid">
-          {paginaAtual.map((c) => {
-            const cli = clientePorId(c.id_cliente);
-            const isExpandido = expandido === c.id_coleta;
 
-            let cardCls = "coleta-card fade-in";
-            if (isExpandido) cardCls += " expandido";
-            if (expandido && !isExpandido) cardCls += " oculto";
+        {/* 🔵 SKELETON ADICIONADO — EXATAMENTE IGUAL AO CLIENTE */}
+        {carregando && (
+          <div className="coleta-grid">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="coleta-card skeleton">
+                <div className="skeleton-bar w-60"></div>
+                <div className="skeleton-bar w-50"></div>
+                <div className="skeleton-bar w-40"></div>
+              </div>
+            ))}
+          </div>
+        )}
 
-            return (
-              <article
-                key={c.id_coleta}
-                className={cardCls}
-                onClick={() =>
-                  setExpandido(isExpandido ? null : c.id_coleta)
-                }
-              >
-                <div className="card-actions">
-                  <button
-                    className="icon-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      abrirModal(c);
-                    }}
+        {!carregando && erro && <p>{erro}</p>}
+
+        {!carregando && !erro && (
+          <div className="coleta-grid">
+            {paginaAtual.map((c) => {
+              const cli = clientePorId(c.id_cliente);
+              const isExpandido = expandido === c.id_coleta;
+
+              let cardCls = "coleta-card fade-in";
+              if (isExpandido) cardCls += " expandido";
+              if (expandido && !isExpandido) cardCls += " oculto";
+
+              return (
+                <article
+                  key={c.id_coleta}
+                  className={cardCls}
+                  onClick={() =>
+                    setExpandido(isExpandido ? null : c.id_coleta)
+                  }
+                >
+                  <div className="card-actions">
+                    <button
+                      className="icon-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        abrirModal(c);
+                      }}
+                    >
+                      <Edit3 size={18} />
+                    </button>
+                    <button
+                      className="icon-btn danger"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        excluirColeta(c);
+                      }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+
+                  <h3 className="coleta-id">Coleta #{c.id_coleta}</h3>
+                  <h4 className="coleta-nome">
+                    {cli?.nome_fantasia || cli?.razao_social || "—"}
+                  </h4>
+
+                  <p className="coleta-line">
+                    <strong>Data:</strong> {formatarData(c.data_coleta)}
+                  </p>
+
+                  <p className="coleta-line">
+                    <strong>Total:</strong>{" "}
+                    {c.quantidade_total ? `${c.quantidade_total} L` : "—"}
+                  </p>
+
+                  <p
+                    className={`status ${
+                      c.status === "CONCLUIDA" ? "ok" : ""
+                    }`}
                   >
-                    <Edit3 size={18} />
-                  </button>
-                  <button
-                    className="icon-btn danger"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      excluirColeta(c);
-                    }}
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
+                    {c.status}
+                  </p>
 
-                <h3 className="coleta-id">Coleta #{c.id_coleta}</h3>
-                <h4 className="coleta-nome">
-                  {cli?.nome_fantasia || cli?.razao_social || "—"}
-                </h4>
+                  {/* EXPANDIDO */}
+                  {isExpandido && (
+                    <div className="coleta-detalhes fade-in">
+                      {/* BLOCO CLIENTE */}
+                      <div className="coleta-bloco">
+                        <h4 className="coleta-bloco-titulo">Cliente</h4>
 
-                <p className="coleta-line">
-                  <strong>Data:</strong> {formatarData(c.data_coleta)}
-                </p>
-
-                <p className="coleta-line">
-                  <strong>Total:</strong>{" "}
-                  {c.quantidade_total ? `${c.quantidade_total} L` : "—"}
-                </p>
-
-                <p className={`status ${c.status === "CONCLUIDA" ? "ok" : ""}`}>
-                  {c.status}
-                </p>
-
-                {/* EXPANDIDO */}
-                {isExpandido && (
-                  <div className="coleta-detalhes fade-in">
-                    {/* BLOCO CLIENTE */}
-                    <div className="coleta-bloco">
-                      <h4 className="coleta-bloco-titulo">Cliente</h4>
-
-                      <p className="coleta-bloco-item">
-                        <strong>Responsável:</strong>{" "}
-                        {cli?.nome_responsavel || "—"}
-                      </p>
-
-                      <p className="coleta-bloco-item">
-                        <strong>Telefone:</strong>{" "}
-                        {cli?.telefone_celular ||
-                          cli?.telefone_fixo ||
-                          "—"}
-                      </p>
-
-                      <p className="coleta-bloco-item">
-                        <strong>Endereço:</strong>{" "}
-                        {cli
-                          ? `${cli.endereco || "—"}, ${
-                              cli.numero || ""
-                            } - ${cli.bairro || ""} - ${
-                              cli.cidade || ""
-                            } / ${cli.estado || ""}`
-                          : "—"}
-                      </p>
-
-                      <p className="coleta-bloco-item">
-                        <strong>Funcionamento:</strong>{" "}
-                        {cli?.dias_funcionamento || "—"}
-                      </p>
-                    </div>
-
-                    {/* BLOCO COLETA */}
-                    <div className="coleta-bloco">
-                      <h4 className="coleta-bloco-titulo">
-                        Detalhes da Coleta
-                      </h4>
-
-                      {c.observacao && (
                         <p className="coleta-bloco-item">
-                          <strong>Observação:</strong> {c.observacao}
+                          <strong>Responsável:</strong>{" "}
+                          {cli?.nome_responsavel || "—"}
                         </p>
-                      )}
 
-                      {/* COMPENSAÇÕES */}
-                      {(!c.compensacoes || !c.compensacoes.length) &&
-                        (!c.produtos || !c.produtos.length) && (
+                        <p className="coleta-bloco-item">
+                          <strong>Telefone:</strong>{" "}
+                          {cli?.telefone_celular ||
+                            cli?.telefone_fixo ||
+                            "—"}
+                        </p>
+
+                        <p className="coleta-bloco-item">
+                          <strong>Endereço:</strong>{" "}
+                          {cli
+                            ? `${cli.endereco || "—"}, ${
+                                cli.numero || ""
+                              } - ${cli.bairro || ""} - ${
+                                cli.cidade || ""
+                              } / ${cli.estado || ""}`
+                            : "—"}
+                        </p>
+
+                        <p className="coleta-bloco-item">
+                          <strong>Funcionamento:</strong>{" "}
+                          {cli?.dias_funcionamento || "—"}
+                        </p>
+                      </div>
+
+                      {/* BLOCO COLETA */}
+                      <div className="coleta-bloco">
+                        <h4 className="coleta-bloco-titulo">
+                          Detalhes da Coleta
+                        </h4>
+
+                        {c.observacao && (
                           <p className="coleta-bloco-item">
-                            Nenhuma compensação registrada.
+                            <strong>Observação:</strong> {c.observacao}
                           </p>
                         )}
 
-                      {c.compensacoes?.map((cp) => (
-                        <p
-                          key={cp.id_coleta_compensacao}
-                          className="coleta-bloco-item"
-                        >
-                          <strong>
-                            {cp.id_tipo === 1
-                              ? "Pagamento Imediato (PIX)"
-                              : cp.id_tipo === 2
-                              ? "Crédito em Loja"
-                              : "Troca por Produto"}
-                            :
-                          </strong>{" "}
-                          {cp.quantidade} L
-                        </p>
-                      ))}
+                        {(!c.compensacoes || !c.compensacoes.length) &&
+                          (!c.produtos || !c.produtos.length) && (
+                            <p className="coleta-bloco-item">
+                              Nenhuma compensação registrada.
+                            </p>
+                          )}
 
-                      {c.produtos?.map((p) => (
-                        <p
-                          key={p.id_coleta_produto}
-                          className="coleta-bloco-item"
-                        >
-                          <strong>{p.produto?.nome_produto}</strong>:{" "}
-                          {p.quantidade} un
-                        </p>
-                      ))}
+                        {c.compensacoes?.map((cp) => (
+                          <p
+                            key={cp.id_coleta_compensacao}
+                            className="coleta-bloco-item"
+                          >
+                            <strong>
+                              {cp.id_tipo === 1
+                                ? "Pagamento Imediato (PIX)"
+                                : cp.id_tipo === 2
+                                ? "Crédito em Loja"
+                                : "Troca por Produto"}
+                              :
+                            </strong>{" "}
+                            {cp.quantidade} L
+                          </p>
+                        ))}
+
+                        {c.produtos?.map((p) => (
+                          <p
+                            key={p.id_coleta_produto}
+                            className="coleta-bloco-item"
+                          >
+                            <strong>{p.produto?.nome_produto}</strong>:{" "}
+                            {p.quantidade} un
+                          </p>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </article>
-            );
-          })}
-        </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
 
-        {!expandido && totalPaginas > 1 && (
+        {!expandido && totalPaginas > 1 && !carregando && (
           <div className="paginacao">
             <button
               className="page-btn"
