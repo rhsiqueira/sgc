@@ -4,6 +4,9 @@ import api from "../../services/api";
 import "./Perfil.css";
 import { ChevronLeft, Edit3, Trash2, X, PlusCircle } from "lucide-react";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function Perfil() {
   const navigate = useNavigate();
 
@@ -35,9 +38,7 @@ export default function Perfil() {
       setCarregando(true);
       setErro("");
       const { data } = await api.get("/perfis");
-      const lista = Array.isArray(data)
-        ? data
-        : data.data || data.perfis || [];
+      const lista = Array.isArray(data) ? data : data.data || data.perfis || [];
       setPerfis(lista);
     } catch (e) {
       console.error(e);
@@ -65,14 +66,12 @@ export default function Perfil() {
   const filtrados = useMemo(() => {
     let lista = [...perfis];
 
-    // Filtro de status
     if (filtroStatus) {
       lista = lista.filter(
         (p) => p.status?.toUpperCase() === filtroStatus.toUpperCase()
       );
     }
 
-    // Busca por nome / descrição
     const termo = busca.trim().toLowerCase();
     if (termo) {
       lista = lista.filter(
@@ -82,7 +81,6 @@ export default function Perfil() {
       );
     }
 
-    // Ordenar do mais recente para o mais antigo
     lista.sort(
       (a, b) => new Date(b.data_criacao || 0) - new Date(a.data_criacao || 0)
     );
@@ -148,24 +146,40 @@ export default function Perfil() {
             p.id_perfil === formData.id_perfil ? perfilAtualizado : p
           )
         );
+
+        toast.success("Perfil atualizado com sucesso!");
       } else {
         response = await api.post("/perfis", formData);
         const novoPerfil = response.data?.data || formData;
 
-        // garante data_criacao para ordenação, caso backend não traga
         if (!novoPerfil.data_criacao) {
           novoPerfil.data_criacao = new Date().toISOString();
         }
 
-        // novo no TOPO e volta pra página 1
         setPerfis((prev) => [novoPerfil, ...prev]);
         setPaginaPerfis(1);
+
+        toast.success("Perfil criado com sucesso!");
       }
 
       fecharModal();
     } catch (e) {
       console.error(e);
-      alert("Não foi possível salvar o perfil.");
+
+      let msg = "Não foi possível salvar o perfil.";
+
+      if (e.response?.data?.errors) {
+        const erros = e.response.data.errors;
+
+        if (erros.nome_perfil)
+          msg = "Já existe um perfil com esse nome.";
+        else {
+          const campo = Object.keys(erros)[0];
+          msg = erros[campo][0] || msg;
+        }
+      }
+
+      toast.error(msg);
     }
   };
 
@@ -173,12 +187,15 @@ export default function Perfil() {
   const excluirPerfil = async (p) => {
     const ok = window.confirm(`Excluir o perfil "${p.nome_perfil}"?`);
     if (!ok) return;
+
     try {
       await api.delete(`/perfis/${p.id_perfil}`);
       setPerfis((prev) => prev.filter((x) => x.id_perfil !== p.id_perfil));
+
+      toast.success("Perfil excluído com sucesso!");
     } catch (e) {
       console.error(e);
-      alert("Não foi possível excluir o perfil.");
+      toast.error("Não foi possível excluir o perfil.");
     }
   };
 
@@ -409,11 +426,15 @@ export default function Perfil() {
                       paddingLeft: "10px",
                     }}
                   >
-                    <strong style={{ fontSize: "1rem" }}>{moduloAtual[0]}</strong>
+                    <strong style={{ fontSize: "1rem" }}>
+                      {moduloAtual[0]}
+                    </strong>
 
                     <div className="perm-linha">
                       {["I", "A", "E", "C"].map((acao) => {
-                        const perm = moduloAtual[1].find((p) => p.acao === acao);
+                        const perm = moduloAtual[1].find(
+                          (p) => p.acao === acao
+                        );
                         return (
                           <label
                             key={acao}
@@ -513,6 +534,8 @@ export default function Perfil() {
           </div>
         </div>
       )}
+
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

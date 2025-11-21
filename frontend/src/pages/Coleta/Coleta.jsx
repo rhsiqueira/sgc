@@ -5,6 +5,10 @@ import "./Coleta.css";
 import { ChevronLeft, Edit3, Trash2, PlusCircle } from "lucide-react";
 import ColetaModal from "./ColetaModal";
 
+// 🔥 Toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function Coleta() {
   const navigate = useNavigate();
 
@@ -33,6 +37,7 @@ export default function Coleta() {
       setColetas(lista);
     } catch (e) {
       setErro("Não foi possível carregar as coletas.");
+      toast.error("Erro ao carregar coletas.");
     } finally {
       setTimeout(() => setCarregando(false), 500);
     }
@@ -46,6 +51,7 @@ export default function Coleta() {
       setClientes(lista.filter((c) => c.status === "ATIVO"));
     } catch (e) {
       console.error("Erro ao carregar clientes:", e);
+      toast.error("Erro ao carregar clientes.");
     }
   };
 
@@ -107,33 +113,56 @@ export default function Coleta() {
     setColetaSelecionada(null);
   };
 
+  // =============================
+  // Salvar Coleta (POST/PUT)
+  // =============================
   const salvarColeta = async (dados) => {
     try {
       if (editMode) {
         const { data } = await api.put(`/coletas/${dados.id_coleta}`, dados);
+
         setColetas((prev) =>
           prev.map((c) =>
             c.id_coleta === dados.id_coleta ? data?.data || dados : c
           )
         );
+
+        toast.success("Coleta atualizada com sucesso.");
       } else {
         const { data } = await api.post("/coletas", dados);
         setColetas((prev) => [data?.data || data, ...prev]);
+
+        toast.success("Coleta criada com sucesso.");
+        setPagina(1);
       }
+
       fecharModal();
     } catch (e) {
       console.error(e);
-      alert("Erro ao salvar coleta.");
+
+      // Erro de validação 422
+      if (e.response?.status === 422 && e.response?.data?.errors) {
+        const campo = Object.keys(e.response.data.errors)[0];
+        toast.error(e.response.data.errors[campo][0]);
+        return;
+      }
+
+      toast.error("Erro ao salvar coleta.");
     }
   };
 
+  // =============================
+  // Excluir Coleta
+  // =============================
   const excluirColeta = async (c) => {
     if (!window.confirm(`Excluir coleta #${c.id_coleta}?`)) return;
+
     try {
       await api.delete(`/coletas/${c.id_coleta}`);
       setColetas((prev) => prev.filter((x) => x.id_coleta !== c.id_coleta));
+      toast.success("Coleta excluída com sucesso.");
     } catch {
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir coleta.");
     }
   };
 
@@ -200,8 +229,6 @@ export default function Coleta() {
 
       {/* CONTENT */}
       <main className="coleta-content">
-
-        {/* 🔵 SKELETON ADICIONADO — EXATAMENTE IGUAL AO CLIENTE */}
         {carregando && (
           <div className="coleta-grid">
             {[1, 2, 3].map((i) => (
@@ -280,7 +307,6 @@ export default function Coleta() {
                   {/* EXPANDIDO */}
                   {isExpandido && (
                     <div className="coleta-detalhes fade-in">
-                      {/* BLOCO CLIENTE */}
                       <div className="coleta-bloco">
                         <h4 className="coleta-bloco-titulo">Cliente</h4>
 
@@ -313,7 +339,6 @@ export default function Coleta() {
                         </p>
                       </div>
 
-                      {/* BLOCO COLETA */}
                       <div className="coleta-bloco">
                         <h4 className="coleta-bloco-titulo">
                           Detalhes da Coleta
@@ -393,6 +418,9 @@ export default function Coleta() {
           </div>
         )}
       </main>
+
+      {/* 🔥 Toasts */}
+      <ToastContainer position="top-right" autoClose={2500} />
 
       <ColetaModal
         open={openModal}

@@ -12,6 +12,10 @@ import {
   EyeOff,
 } from "lucide-react";
 
+// 🔥 Toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function Usuario() {
   const navigate = useNavigate();
 
@@ -62,6 +66,7 @@ export default function Usuario() {
     } catch (e) {
       console.error(e);
       setErro("Não foi possível carregar os usuários.");
+      toast.error("Não foi possível carregar os usuários.");
     } finally {
       setTimeout(() => setCarregando(false), 500);
     }
@@ -125,7 +130,6 @@ export default function Usuario() {
       );
     }
 
-    // ORDENAR PELO MAIS RECENTE
     lista.sort(
       (a, b) =>
         new Date(b.data_criacao || 0) - new Date(a.data_criacao || 0)
@@ -190,22 +194,32 @@ export default function Usuario() {
   const salvarUsuario = async (e) => {
     e.preventDefault();
 
+    // 🔥 VALIDAÇÃO DE CPF (somente o necessário)
+    const rawCpf = formData.cpf.replace(/\D/g, "");
+    if (rawCpf.length !== 11) {
+      toast.error("CPF inválido. Insira um CPF com 11 dígitos.");
+      return;
+    }
+
     try {
       const payload = {
         ...formData,
-        cpf: formData.cpf.replace(/\D/g, ""),
+        cpf: rawCpf,
       };
 
-      // reset senha
+      // RESET DE SENHA
       if (editMode && formData.resetarSenha) {
         if (formData.novaSenha !== formData.confirmarSenha) {
-          alert("As senhas não coincidem.");
+          toast.error("As senhas não coincidem.");
           return;
         }
+
         await api.patch(
           `/usuarios/${formData.id_usuario}/redefinir-senha`,
           { nova_senha: formData.novaSenha }
         );
+
+        toast.success("Senha redefinida com sucesso.");
       }
 
       let retorno;
@@ -222,8 +236,9 @@ export default function Usuario() {
             u.id_usuario === retorno.id_usuario ? retorno : u
           )
         );
+
+        toast.success("Usuário atualizado com sucesso.");
       } else {
-        // Criar
         const { data } = await api.post("/usuarios", payload);
         retorno = data?.data || payload;
 
@@ -233,12 +248,29 @@ export default function Usuario() {
 
         setUsuarios((prev) => [retorno, ...prev]);
         setPagina(1);
+
+        toast.success("Usuário criado com sucesso.");
       }
 
       fecharModal();
     } catch (e) {
       console.error(e);
-      alert("Não foi possível salvar o usuário.");
+
+      // mensagem de erro refinada
+      let msg = "Não foi possível salvar o usuário.";
+
+      if (e.response?.data?.errors) {
+        const erros = e.response.data.errors;
+
+        if (erros.cpf) msg = "CPF já está cadastrado.";
+        else if (erros.email) msg = "Email já está cadastrado.";
+        else {
+          const campo = Object.keys(erros)[0];
+          msg = erros[campo][0] || msg;
+        }
+      }
+
+      toast.error(msg);
     }
   };
 
@@ -253,9 +285,11 @@ export default function Usuario() {
       setUsuarios((prev) =>
         prev.filter((x) => x.id_usuario !== u.id_usuario)
       );
+
+      toast.success("Usuário excluído.");
     } catch (e) {
       console.error(e);
-      alert("Erro ao excluir.");
+      toast.error("Erro ao excluir usuário.");
     }
   };
 
@@ -393,6 +427,9 @@ export default function Usuario() {
           </>
         )}
       </main>
+
+      {/* COMPONENTE DE TOAST */}
+      <ToastContainer position="top-right" autoClose={2500} />
 
       {/* MODAL */}
       {openModal && (

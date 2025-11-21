@@ -2,7 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import "./Produto.css";
-import { ChevronLeft, Edit3, Trash2, X, PlusCircle, Filter } from "lucide-react";
+import { ChevronLeft, Edit3, Trash2, X, PlusCircle } from "lucide-react";
+
+// 🔥 Toastify
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Produto() {
   const navigate = useNavigate();
@@ -12,10 +16,11 @@ export default function Produto() {
   const [pagina, setPagina] = useState(1);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
-  const [filtroEstoque, setFiltroEstoque] = useState(""); // ✅ novo estado de filtro
+  const [filtroEstoque, setFiltroEstoque] = useState("");
 
   const [openModal, setOpenModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
+
   const [formData, setFormData] = useState({
     id_produto: null,
     nome_produto: "",
@@ -34,12 +39,15 @@ export default function Produto() {
     try {
       setCarregando(true);
       setErro("");
+
       const { data } = await api.get("/produtos");
       const lista = Array.isArray(data.data) ? data.data : [];
+
       setProdutos(lista);
     } catch (e) {
       console.error(e);
       setErro("Não foi possível carregar os produtos.");
+      toast.error("Não foi possível carregar os produtos.");
     } finally {
       setTimeout(() => setCarregando(false), 800);
     }
@@ -62,7 +70,6 @@ export default function Produto() {
       );
     }
 
-    // ✅ aplica o filtro de estoque
     if (filtroEstoque === "baixo") {
       lista = lista.filter((p) => p.quantidade_atual < p.quantidade_minima);
     } else if (filtroEstoque === "limite") {
@@ -90,10 +97,8 @@ export default function Produto() {
           produto.quantidade_atual === null ? "" : String(produto.quantidade_atual),
         quantidade_minima:
           produto.quantidade_minima === null ? "" : String(produto.quantidade_minima),
-        valor_custo:
-          produto.valor_custo === null ? "" : String(produto.valor_custo),
-        valor_venda:
-          produto.valor_venda === null ? "" : String(produto.valor_venda),
+        valor_custo: produto.valor_custo === null ? "" : String(produto.valor_custo),
+        valor_venda: produto.valor_venda === null ? "" : String(produto.valor_venda),
         status: produto.status || "ATIVO",
       });
     } else {
@@ -109,6 +114,7 @@ export default function Produto() {
         status: "ATIVO",
       });
     }
+
     setOpenModal(true);
   };
 
@@ -117,6 +123,7 @@ export default function Produto() {
   // === CRUD ===
   const salvarProduto = async (e) => {
     e.preventDefault();
+
     try {
       const payload = {
         ...formData,
@@ -127,34 +134,54 @@ export default function Produto() {
       };
 
       if (editMode) {
-        await api.put(`/produtos/${formData.id_produto}`, payload);
+        const { data } = await api.put(`/produtos/${formData.id_produto}`, payload);
+
         setProdutos((prev) =>
           prev.map((p) =>
-            p.id_produto === formData.id_produto ? { ...p, ...payload } : p
+            p.id_produto === formData.id_produto ? { ...p, ...data.data } : p
           )
         );
+
+        toast.success("Produto atualizado com sucesso.");
       } else {
         const { data } = await api.post("/produtos", payload);
+
         setProdutos((prev) => [...prev, data.data]);
+        toast.success("Produto criado com sucesso.");
+        setPagina(1);
       }
+
       fecharModal();
     } catch (err) {
       console.error(err);
-      alert("Erro ao salvar o produto. Verifique os campos obrigatórios.");
+
+      // Erros de validação (422)
+      if (err.response?.data?.errors) {
+        const erros = err.response.data.errors;
+        const campo = Object.keys(erros)[0];
+        toast.error(erros[campo][0]);
+        return;
+      }
+
+      toast.error("Erro ao salvar o produto. Verifique os campos.");
     }
   };
 
   const excluirProduto = async (produto) => {
     const ok = window.confirm(`Excluir o produto "${produto.nome_produto}"?`);
     if (!ok) return;
+
     try {
       await api.delete(`/produtos/${produto.id_produto}`);
+
       setProdutos((prev) =>
         prev.filter((p) => p.id_produto !== produto.id_produto)
       );
+
+      toast.success("Produto excluído com sucesso.");
     } catch (err) {
       console.error(err);
-      alert("Erro ao excluir o produto.");
+      toast.error("Erro ao excluir o produto.");
     }
   };
 
@@ -163,10 +190,7 @@ export default function Produto() {
 
   const calcularPercentual = (p) => {
     if (!p.quantidade_minima) return 0;
-    return Math.min(
-      100,
-      Math.round((p.quantidade_atual / p.quantidade_minima) * 100)
-    );
+    return Math.min(100, Math.round((p.quantidade_atual / p.quantidade_minima) * 100));
   };
 
   return (
@@ -200,7 +224,6 @@ export default function Produto() {
         </div>
 
         <div className="produto-actions">
-          {/* ✅ Novo filtro de estoque */}
           <select
             className="filtro-select"
             value={filtroEstoque}
@@ -244,6 +267,7 @@ export default function Produto() {
               {paginaAtual.map((p) => {
                 const perc = calcularPercentual(p);
                 const estoqueBaixo = p.quantidade_atual < p.quantidade_minima;
+
                 return (
                   <article
                     key={p.id_produto}
@@ -259,6 +283,7 @@ export default function Produto() {
                       >
                         <Edit3 size={18} />
                       </button>
+
                       <button
                         className="icon-btn danger"
                         title="Excluir"
@@ -269,19 +294,18 @@ export default function Produto() {
                     </div>
 
                     <h3 className="produto-name">{p.nome_produto}</h3>
+
                     <p className="produto-line">
                       <strong>Unidade:</strong> {p.unidade || "—"}
                     </p>
+
                     <p className="produto-line">
-                      <strong>Qtd:</strong> {p.quantidade_atual} /{" "}
-                      {p.quantidade_minima}
+                      <strong>Qtd:</strong> {p.quantidade_atual} / {p.quantidade_minima}
                     </p>
 
                     <div className="stock-bar">
                       <div
-                        className={`stock-fill ${
-                          estoqueBaixo ? "low" : ""
-                        }`}
+                        className={`stock-fill ${estoqueBaixo ? "low" : ""}`}
                         style={{ width: `${perc}%` }}
                       ></div>
                     </div>
@@ -290,11 +314,7 @@ export default function Produto() {
                       <strong>Venda:</strong> {formatarValor(p.valor_venda)}
                     </p>
 
-                    <p
-                      className={`status ${
-                        p.status === "ATIVO" ? "ok" : "off"
-                      }`}
-                    >
+                    <p className={`status ${p.status === "ATIVO" ? "ok" : "off"}`}>
                       {p.status}
                     </p>
                   </article>
@@ -311,9 +331,11 @@ export default function Produto() {
                 >
                   Anterior
                 </button>
+
                 <span className="page-info">
                   {pagina} / {totalPaginas}
                 </span>
+
                 <button
                   className="page-btn"
                   disabled={pagina === totalPaginas}
@@ -327,13 +349,17 @@ export default function Produto() {
         )}
       </main>
 
-      {/* Modal permanece inalterado */}
+      {/* 🔥 Toasts */}
+      <ToastContainer position="top-right" autoClose={2500} />
+
+      {/* Modal */}
       {openModal && (
         <div className="modal-overlay" onClick={fecharModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close" onClick={fecharModal}>
               <X size={18} />
             </button>
+
             <h4>{editMode ? "Editar Produto" : "Adicionar Produto"}</h4>
 
             <form onSubmit={salvarProduto} className="modal-form">
@@ -449,13 +475,10 @@ export default function Produto() {
               </label>
 
               <div className="modal-actions">
-                <button
-                  type="button"
-                  className="btn ghost"
-                  onClick={fecharModal}
-                >
+                <button type="button" className="btn ghost" onClick={fecharModal}>
                   Cancelar
                 </button>
+
                 <button type="submit" className="btn primary">
                   Salvar
                 </button>

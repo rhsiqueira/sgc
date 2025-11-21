@@ -4,6 +4,8 @@ import { X, FileText, Calendar, User } from "lucide-react";
 import api from "../../services/api";
 import "./ClienteModal.css";
 
+import { toast } from "react-toastify";
+
 export default function ClienteModal({
   open,
   onClose,
@@ -16,7 +18,9 @@ export default function ClienteModal({
 }) {
   if (!open) return null;
 
-  // ======== FORMATADORES ========
+  // ============================
+  // FORMATADORES
+  // ============================
   const formatarCNPJ = (valor) => {
     const apenasNumeros = valor.replace(/\D/g, "").slice(0, 14);
     if (apenasNumeros.length <= 11) {
@@ -42,47 +46,71 @@ export default function ClienteModal({
     return data.toLocaleDateString("pt-BR");
   };
 
-  // ======== HANDLERS ========
+  // ============================
+  // HANDLERS
+  // ============================
   const handleChange = (field, value) =>
     setFormData((d) => ({ ...d, [field]: value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const result = await onSave();
       const clienteId = result?.id_cliente || formData?.id_cliente;
 
+      if (!result) {
+        toast.error("Erro ao salvar cliente.");
+        return;
+      }
+
+      // ========== UPLOAD DE CONTRATO (SE SELECIONADO) ==========
       if (formData.contrato && clienteId) {
         const formDataUpload = new FormData();
         formDataUpload.append("id_cliente", clienteId);
         formDataUpload.append("arquivo", formData.contrato);
 
-        const response = await api.post("/contratos", formDataUpload);
+        try {
+          const response = await api.post("/contratos", formDataUpload);
 
-        if (response.data?.status === "success") {
-          const contrato = response.data.data;
+          if (response.data?.status === "success") {
+            const contrato = response.data.data;
 
-          alert("Contrato enviado com sucesso!");
+            toast.success("Contrato enviado com sucesso!");
 
-          setFormData((d) => ({
-            ...d,
-            url_arquivo: contrato.url_arquivo,
-            data_upload: contrato.data_upload,
-            usuario_upload: contrato.usuario_upload,
-          }));
-        } else {
-          alert("Falha ao enviar contrato.");
+            setFormData((d) => ({
+              ...d,
+              url_arquivo: contrato.url_arquivo,
+              data_upload: contrato.data_upload,
+              usuario_upload: contrato.usuario_upload,
+            }));
+          } else if (response.data?.errors) {
+            const campo = Object.keys(response.data.errors)[0];
+            toast.error(response.data.errors[campo][0]);
+          } else {
+            toast.error("Falha ao enviar contrato.");
+          }
+        } catch (err) {
+          if (err.response?.status === 422) {
+            const erros = err.response.data.errors;
+            const campo = Object.keys(erros)[0];
+            toast.error(erros[campo][0]);
+          } else {
+            toast.error("Erro ao fazer upload do contrato.");
+          }
         }
       }
 
       onClose();
     } catch (err) {
-      console.error("❌ Erro ao salvar cliente/contrato:", err);
-      alert("Erro ao salvar cliente ou contrato. Verifique o console.");
+      console.error("❌ Erro ao salvar cliente ou contrato:", err);
+      toast.error("Erro ao salvar cliente ou contrato.");
     }
   };
 
-  // ======== RENDER ========
+  // ============================
+  // RENDER
+  // ============================
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -94,6 +122,9 @@ export default function ClienteModal({
         <p className="modal-etapa">Etapa {etapa} de 2</p>
 
         <form onSubmit={handleSubmit} className="modal-form">
+          {/* ============================
+              ETAPA 1
+          ============================= */}
           {etapa === 1 && (
             <>
               <label>
@@ -133,7 +164,6 @@ export default function ClienteModal({
                 />
               </label>
 
-              {/* ===== Linha 1 — Nome Responsável | Celular ===== */}
               <div className="row resp-cel">
                 <label>
                   Nome do Responsável
@@ -159,7 +189,6 @@ export default function ClienteModal({
                 </label>
               </div>
 
-              {/* ===== Linha 2 — Email | Fixo ===== */}
               <div className="row email-fixo">
                 <label>
                   E-mail Comercial
@@ -185,7 +214,9 @@ export default function ClienteModal({
                 </label>
               </div>
 
-              {/* ======== CONTRATO (PDF) ======== */}
+              {/* ============================
+                  CONTRATO (PDF)
+              ============================= */}
               <label>
                 <span
                   style={{
@@ -300,6 +331,9 @@ export default function ClienteModal({
             </>
           )}
 
+          {/* ============================
+              ETAPA 2
+          ============================= */}
           {etapa === 2 && (
             <>
               <label>
@@ -315,7 +349,6 @@ export default function ClienteModal({
                 />
               </label>
 
-              {/* ===== Linha Bairro | Número ===== */}
               <div className="row bairro-numero">
                 <label>
                   Bairro
@@ -344,7 +377,6 @@ export default function ClienteModal({
                 </label>
               </div>
 
-              {/* ===== Linha Cidade | UF ===== */}
               <div className="row cidade-uf">
                 <label>
                   Cidade
@@ -429,6 +461,7 @@ export default function ClienteModal({
                 >
                   ← Voltar
                 </button>
+
                 <button type="submit" className="btn primary">
                   Salvar
                 </button>

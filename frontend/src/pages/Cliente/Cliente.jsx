@@ -3,8 +3,19 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import "./Cliente.css";
-import { ChevronLeft, Edit3, Trash2, PlusCircle, FileText, Calendar, User } from "lucide-react";
+import {
+  ChevronLeft,
+  Edit3,
+  Trash2,
+  PlusCircle,
+  FileText,
+  Calendar,
+  User,
+} from "lucide-react";
 import ClienteModal from "./ClienteModal";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Cliente() {
   const navigate = useNavigate();
@@ -69,6 +80,7 @@ export default function Cliente() {
     } catch (e) {
       console.error(e);
       setErro("Não foi possível carregar os clientes.");
+      toast.error("Erro ao carregar clientes.");
     } finally {
       setTimeout(() => setCarregando(false), 500);
     }
@@ -142,38 +154,75 @@ export default function Cliente() {
   const salvarCliente = async () => {
     try {
       if (editMode) {
-        const { data } = await api.put(
+        const response = await api.put(
           `/clientes/${formData.id_cliente}`,
           formData
         );
-        if (data?.data) {
+
+        const data = response.data;
+
+        if (data?.status === "success") {
+          toast.success("Cliente atualizado com sucesso!");
+
           setClientes((prev) =>
             prev.map((c) =>
               c.id_cliente === formData.id_cliente ? { ...c, ...data.data } : c
             )
           );
-          fecharModal();
+
           return data.data;
         }
-      } else {
-        const { data } = await api.post("/clientes", formData);
-        if (data?.data) {
-          const novo = data.data;
 
-          if (!novo.data_criacao) {
-            novo.data_criacao = new Date().toISOString();
-          }
-
-          setClientes((prev) => [novo, ...prev]);
-          setPagina(1);
-
-          fecharModal();
-          return novo;
+        // erro de validação
+        if (data?.errors) {
+          const campo = Object.keys(data.errors)[0];
+          toast.error(data.errors[campo][0]);
+          return null;
         }
+
+        toast.error(data?.message || "Erro ao atualizar cliente.");
+        return null;
       }
+
+      // === CRIAÇÃO ===
+      const response = await api.post("/clientes", formData);
+      const data = response.data;
+
+      if (data?.status === "success") {
+        toast.success("Cliente criado com sucesso!");
+
+        const novo = data.data;
+
+        if (!novo.data_criacao) {
+          novo.data_criacao = new Date().toISOString();
+        }
+
+        setClientes((prev) => [novo, ...prev]);
+        setPagina(1);
+
+        return novo;
+      }
+
+      if (data?.errors) {
+        const campo = Object.keys(data.errors)[0];
+        toast.error(data.errors[campo][0]);
+        return null;
+      }
+
+      toast.error(data?.message || "Erro ao criar cliente.");
+      return null;
     } catch (e) {
       console.error(e);
-      alert("Erro ao salvar o cliente. Verifique os campos obrigatórios.");
+
+      // validação 422
+      if (e.response?.status === 422) {
+        const erros = e.response.data.errors;
+        const campo = Object.keys(erros)[0];
+        toast.error(erros[campo][0]);
+      } else {
+        toast.error("Erro ao salvar cliente.");
+      }
+
       return null;
     }
   };
@@ -181,12 +230,19 @@ export default function Cliente() {
   const excluirCliente = async (c) => {
     const ok = window.confirm(`Excluir o cliente "${c.razao_social}"?`);
     if (!ok) return;
+
     try {
-      await api.delete(`/clientes/${c.id_cliente}`);
-      setClientes((prev) => prev.filter((x) => x.id_cliente !== c.id_cliente));
+      const response = await api.delete(`/clientes/${c.id_cliente}`);
+
+      if (response.data?.status === "success") {
+        toast.success("Cliente excluído com sucesso!");
+        setClientes((prev) => prev.filter((x) => x.id_cliente !== c.id_cliente));
+      } else {
+        toast.error(response.data?.message || "Erro ao excluir cliente.");
+      }
     } catch (e) {
       console.error(e);
-      alert("Erro ao excluir o cliente.");
+      toast.error("Erro ao excluir cliente.");
     }
   };
 
@@ -202,6 +258,8 @@ export default function Cliente() {
   // ============================
   return (
     <div className="cliente-page enter-down">
+      <ToastContainer position="top-right" autoClose={2500} />
+
       <header className="cliente-header">
         <div className="cliente-header-top">
           <button className="back-btn" onClick={() => navigate("/home")}>
@@ -252,7 +310,11 @@ export default function Cliente() {
             <option value="">📋 Todos</option>
           </select>
 
-          <button  className="btd-add-cliente" style={{ width: "60%" }} onClick={() => abrirModal(null)}>
+          <button
+            className="btd-add-cliente"
+            style={{ width: "60%" }}
+            onClick={() => abrirModal(null)}
+          >
             <PlusCircle size={16} style={{ marginRight: 6 }} />
             Adicionar Cliente
           </button>
@@ -283,10 +345,8 @@ export default function Cliente() {
               {paginaAtual.map((c) => {
                 const isExpandido = expandido === c.id_cliente;
 
-                // 🔥 se alguém está expandido, só rende ele
-                if (expandido && !isExpandido) {
-                  return null;
-                }
+                // se algum está expandido, só mostra ele
+                if (expandido && !isExpandido) return null;
 
                 return (
                   <article
@@ -323,7 +383,6 @@ export default function Cliente() {
                       </button>
                     </div>
 
-                    {/* CABEÇALHO DO CARD */}
                     <h3 className="cliente-name">
                       {c.nome_fantasia || "—"}
                     </h3>
@@ -333,11 +392,15 @@ export default function Cliente() {
                       {c.dias_funcionamento || "—"}
                     </p>
 
-                    <p className={`status ${c.status === "ATIVO" ? "ok" : "off"}`}>
+                    <p
+                      className={`status ${
+                        c.status === "ATIVO" ? "ok" : "off"
+                      }`}
+                    >
                       {c.status}
                     </p>
 
-                    {/* BLOCO EXPANDIDO */}
+                    {/* EXPANDIDO */}
                     {isExpandido && (
                       <div className="cliente-detalhes">
                         {/* Contatos */}
@@ -380,7 +443,7 @@ export default function Cliente() {
                           </p>
                         </div>
 
-                        {/* Observações / Funcionamento */}
+                        {/* Funcionamento */}
                         <div className="det-bloco">
                           <h4>Funcionamento</h4>
                           <p>
@@ -396,6 +459,7 @@ export default function Cliente() {
                         {/* Contrato */}
                         <div className="det-bloco">
                           <h4>Contrato</h4>
+
                           {!c.contrato || !c.contrato.url_arquivo ? (
                             <p>Nenhum contrato vinculado.</p>
                           ) : (
@@ -441,7 +505,6 @@ export default function Cliente() {
               })}
             </div>
 
-            {/* Paginação some quando estiver expandido */}
             {!expandido && totalPaginas > 1 && (
               <div className="paginacao">
                 <button
@@ -469,7 +532,7 @@ export default function Cliente() {
         )}
       </main>
 
-      {/* 🔵 ClienteModal controlado */}
+      {/* MODAL */}
       <ClienteModal
         open={openModal}
         onClose={fecharModal}

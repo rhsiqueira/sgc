@@ -5,18 +5,17 @@ import { ChevronLeft } from "lucide-react";
 import api from "../../services/api";
 import TipoColeta from "./TipoColeta";
 
+// 🔥 Toastify
+import { toast } from "react-toastify";
+
 export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
     const [clientes, setClientes] = useState([]);
     const [busca, setBusca] = useState("");
     const [pagina, setPagina] = useState(1);
 
-    // Onde armazenamos PIX / CRÉDITO / PRODUTO
     const [tiposSelecionados, setTiposSelecionados] = useState([]);
-
-    // Dados do tipo ao abrir a tela de edição
     const [tipoInicial, setTipoInicial] = useState(null);
 
-    // Formulário principal
     const [formData, setFormData] = useState({
         id_coleta: null,
         id_cliente: null,
@@ -26,13 +25,12 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
         observacao: "",
     });
 
-    // controle de telas do modal
     const [etapa, setEtapa] = useState("formulario");
 
     const POR_PAGINA = 3;
 
     // =========================
-    // NORMALIZAÇÃO DE DATA
+    // NORMALIZAR DATA
     // =========================
     const formatarData = (dataISO) => {
         if (!dataISO) return "";
@@ -40,11 +38,13 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
     };
 
     // ===========================================================
-    // 🔄 QUANDO ABRE PARA EDITAR: preencher cliente + tipos
+    // QUANDO ABRE PARA EDITAR
     // ===========================================================
     useEffect(() => {
+        if (!open) return;
+
         if (!coletaEdit) {
-            // nova coleta – limpar tudo
+            // limpeza total
             setFormData({
                 id_coleta: null,
                 id_cliente: null,
@@ -57,13 +57,11 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
             return;
         }
 
-        // =========================
-        // MONTAR TIPOS A PARTIR DO BACKEND
-        // =========================
+        // Montar lista de tipos
         const montarTipos = () => {
             const lista = [];
 
-            // --------- PIX / CRÉDITO ---------
+            // PIX / CRÉDITO
             coletaEdit.compensacoes?.forEach((c) => {
                 if (c.id_tipo === 1) {
                     lista.push({
@@ -82,7 +80,7 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
                 }
             });
 
-            // --------- PRODUTO (compensação + produtos entregues) ---------
+            // PRODUTO
             if (
                 coletaEdit.compensacoes?.some((c) => c.id_tipo === 3) ||
                 coletaEdit.produtos?.length > 0
@@ -105,7 +103,7 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
             return lista;
         };
 
-        // preencher o formulário principal
+        // Preencher form
         setFormData({
             id_coleta: coletaEdit.id_coleta,
             id_cliente: coletaEdit.id_cliente,
@@ -115,38 +113,34 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
             observacao: coletaEdit.observacao || "",
         });
 
-        // carregar os tipos
         setTiposSelecionados(montarTipos());
-    }, [coletaEdit]);
+    }, [open, coletaEdit]);
 
     // =========================
     // CARREGAR CLIENTES
     // =========================
-const fetchClientes = async () => {
-    try {
-        const { data } = await api.get("/clientes");
+    const fetchClientes = async () => {
+        try {
+            const { data } = await api.get("/clientes");
 
-        const lista = Array.isArray(data.data) ? data.data : [];
+            const lista = Array.isArray(data.data) ? data.data : [];
 
-        // 🔥 Ajuste correto:
-        // 1) Filtra somente clientes ATIVOS
-        // 2) Ordena pelo mais recente (id_cliente desc)
-        const filtrados = lista
-            .filter(c => c.status === "ATIVO")
-            .sort((a, b) => b.id_cliente - a.id_cliente);
+            const filtrados = lista
+                .filter((c) => c.status === "ATIVO")
+                .sort((a, b) => b.id_cliente - a.id_cliente);
 
-        setClientes(filtrados);
-    } catch (e) {
-        console.error("Erro ao carregar clientes", e);
-    }
-};
+            setClientes(filtrados);
+        } catch (e) {
+            toast.error("Erro ao carregar clientes.");
+        }
+    };
 
     useEffect(() => {
         if (open) fetchClientes();
     }, [open]);
 
     // =========================
-    // FILTRO DE CLIENTES
+    // FILTRO CLIENTES
     // =========================
     const clientesFiltrados = useMemo(() => {
         const termo = busca.trim().toLowerCase();
@@ -165,7 +159,7 @@ const fetchClientes = async () => {
     const paginaAtual = clientesFiltrados.slice(inicio, inicio + POR_PAGINA);
 
     // =========================
-    // ABRIR TIPOS
+    // TIPOS
     // =========================
     const abrirTipo = (tipo) => {
         const existente = tiposSelecionados.find((t) => t.tipo === tipo) || null;
@@ -173,7 +167,6 @@ const fetchClientes = async () => {
         setEtapa(`tipo_${tipo}`);
     };
 
-    // SALVAR UM TIPO INDIVIDUAL (PIX/CRÉDITO/PRODUTO)
     const salvarTipo = (dadosTipo) => {
         setTiposSelecionados((prev) => {
             const idx = prev.findIndex((t) => t.tipo === dadosTipo.tipo);
@@ -183,12 +176,14 @@ const fetchClientes = async () => {
             return [...prev, dadosTipo];
         });
 
+        toast.success("Compensação atualizada.");
         setEtapa("formulario");
         setTipoInicial(null);
     };
 
     const removerTipo = (tipo) => {
         setTiposSelecionados((prev) => prev.filter((t) => t.tipo !== tipo));
+        toast.info("Compensação removida.");
     };
 
     // =========================
@@ -198,7 +193,7 @@ const fetchClientes = async () => {
         e.preventDefault();
 
         if (!formData.id_cliente) {
-            alert("Selecione um cliente antes de salvar.");
+            toast.error("Selecione um cliente antes de salvar.");
             return;
         }
 
@@ -213,11 +208,12 @@ const fetchClientes = async () => {
     if (!open) return null;
 
     // =========================
-    // RESUMO VISUAL DOS TIPOS
+    // RESUMO TIPOS
     // =========================
     const resumoTipo = (t) => {
         if (t.tipo === "pix" || t.tipo === "credito") {
-            const total = (Number(t.quantidade) || 0) * (Number(t.valor_unitario) || 0);
+            const total =
+                (Number(t.quantidade) || 0) * (Number(t.valor_unitario) || 0);
             const label = t.tipo === "pix" ? "PIX" : "CRÉDITO";
 
             return `${label} — ${t.quantidade} L — R$ ${Number(
@@ -238,7 +234,7 @@ const fetchClientes = async () => {
     };
 
     // =========================
-    // RENDERIZAÇÃO
+    // RENDER
     // =========================
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -255,7 +251,6 @@ const fetchClientes = async () => {
                 ====================================================== */}
                 {etapa === "formulario" && (
                     <form className="modal-form" onSubmit={handleSubmit}>
-                        {/* CLIENTE */}
                         <label>
                             Cliente
                             <input
@@ -267,7 +262,6 @@ const fetchClientes = async () => {
                             />
                         </label>
 
-                        {/* DATA */}
                         <label>
                             Data da Coleta
                             <input
@@ -283,12 +277,11 @@ const fetchClientes = async () => {
                             />
                         </label>
 
-                        {/* ========================= TIPOS ========================= */}
+                        {/* TIPOS */}
                         <div className="tipo-bloco">
                             <h4 className="tipo-titulo">Compensação da Coleta</h4>
 
                             <div className="tipo-opcoes">
-                                {/* PIX */}
                                 <label className="tipo-checkbox tipo-col">
                                     <input
                                         type="checkbox"
@@ -301,12 +294,13 @@ const fetchClientes = async () => {
                                     </span>
                                 </label>
 
-                                {/* PRODUTO */}
                                 <label className="tipo-checkbox tipo-col">
                                     <input
                                         type="checkbox"
                                         className="cb-big"
-                                        checked={!!tiposSelecionados.find((t) => t.tipo === "produto")}
+                                        checked={
+                                            !!tiposSelecionados.find((t) => t.tipo === "produto")
+                                        }
                                         onChange={() => abrirTipo("produto")}
                                     />
                                     <span className="tipo-text">
@@ -314,12 +308,13 @@ const fetchClientes = async () => {
                                     </span>
                                 </label>
 
-                                {/* CRÉDITO */}
                                 <label className="tipo-checkbox tipo-col">
                                     <input
                                         type="checkbox"
                                         className="cb-big"
-                                        checked={!!tiposSelecionados.find((t) => t.tipo === "credito")}
+                                        checked={
+                                            !!tiposSelecionados.find((t) => t.tipo === "credito")
+                                        }
                                         onChange={() => abrirTipo("credito")}
                                     />
                                     <span className="tipo-text">
@@ -328,7 +323,6 @@ const fetchClientes = async () => {
                                 </label>
                             </div>
 
-                            {/* LISTA DOS TIPOS JÁ ADICIONADOS */}
                             <div className="tipo-lista">
                                 {tiposSelecionados.map((t) => (
                                     <div key={t.tipo} className="tipo-item">
@@ -356,7 +350,6 @@ const fetchClientes = async () => {
                             </div>
                         </div>
 
-                        {/* STATUS */}
                         <label>
                             Status
                             <select
@@ -372,7 +365,6 @@ const fetchClientes = async () => {
                             </select>
                         </label>
 
-                        {/* OBSERVAÇÃO */}
                         <label>
                             Observação
                             <textarea
@@ -387,7 +379,6 @@ const fetchClientes = async () => {
                             />
                         </label>
 
-                        {/* BOTÕES */}
                         <div className="modal-actions">
                             <button type="button" className="btn ghost" onClick={onClose}>
                                 Cancelar
@@ -439,6 +430,7 @@ const fetchClientes = async () => {
                                                 id_cliente: c.id_cliente,
                                                 nome_cliente: c.razao_social,
                                             }));
+                                            toast.success("Cliente selecionado.");
                                             setEtapa("formulario");
                                         }}
                                     >
@@ -493,7 +485,7 @@ const fetchClientes = async () => {
                 )}
 
                 {/* ======================================================
-                   TELAS DOS TIPOS
+                   TIPOS: PIX / CRÉDITO / PRODUTO
                 ====================================================== */}
                 {etapa === "tipo_pix" && (
                     <TipoColeta
