@@ -1,0 +1,297 @@
+/* =========================================
+   CERTIFICADO ULTRA REDUZIDO (80% menor)
+   ========================================= */
+
+.cert-root {
+    width: 350px;
+    background: #00aa2e;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.cert-frame {
+    width: 100%;
+    background: #00b834;
+    border: 2px solid #008f28;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    color: #fff;
+    overflow: hidden;
+}
+
+/* HEADER */
+.cert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.cert-header-left {
+    display: flex;
+    gap: 4px;
+}
+
+.cert-logos {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.cert-logo-tangara {
+    width: 60px;
+}
+
+.cert-logo-godzilla {
+    width: 60px;
+}
+
+.cert-company-info p {
+    margin: 0;
+    font-size: 0.45rem;
+    line-height: 0.55rem;
+}
+
+.cert-header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.cert-number-box {
+    width: 55px;
+    height: 25px;
+    border: 1px solid #fff;
+    text-align: center;
+    margin-bottom: 3px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cert-number-label {
+    font-size: 0.40rem;
+}
+
+.cert-number-value {
+    font-size: 0.65rem;
+    font-weight: bold;
+}
+
+.cert-contact {
+    text-align: right;
+    font-size: 0.45rem;
+    line-height: 0.55rem;
+}
+
+/* BODY */
+.cert-body {
+    margin-top: 6px;
+}
+
+.cert-title-block h1 {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    font-size: 0.65rem;
+}
+
+.cert-paragraph {
+    margin-top: 3px;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 0.55rem;
+    line-height: 0.68rem;
+    margin-bottom: 12px;
+}
+
+/* CAMPOS */
+.white-block {
+    background: #fff;
+    color: #000 !important;
+}
+
+.cert-field-row {
+    display: flex;
+    border: 1px solid #ccc;
+    padding: 3px 4px;
+    margin-top: 4px;
+}
+
+.cert-field-label {
+    width: 100px;
+    font-weight: bold;
+    font-size: 0.45rem;
+}
+
+.cert-field-value {
+    font-size: 0.45rem;
+}
+
+/* NOVO BLOCO DUPLO PARA CNPJ + TELEFONE */
+.cert-field-row-dupla {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.half-block {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    padding: 3px 4px;
+    background: #fff;
+}
+
+.half-block .cert-field-label {
+    width: 45px;
+}
+
+.half-block .cert-field-value {
+    font-size: 0.45rem;
+    white-space: nowrap;
+}
+
+/* QUANTIDADES */
+.cert-quantidade-bloco {
+    margin-top: 8px;
+    padding: 6px;
+    border: 1px solid #fff;
+    background: #fff;
+    color: #000;
+    font-size: 0.45rem;
+}
+
+.cert-quantidade-linha {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+/* COMPENSAÇÃO EM LINHA */
+.cert-comp-row-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    width: 100%;
+}
+
+.cert-comp-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.45rem;
+}
+
+/* PRODUTOS: exibir em linha */
+.cert-produtos-container {
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.cert-produtos-col {
+    width: 50%;
+}
+
+.cert-produto-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+    font-size: 0.42rem;
+}
+
+.underline {
+    border-bottom: 1px solid #000;
+    min-width: 55px;
+    padding-bottom: 1px;
+    white-space: nowrap;
+}
+
+/* FOOTER */
+.cert-footer {
+    margin-top: 8px;
+}
+
+.cert-data-linha {
+    color: white;
+    font-size: 0.45rem;
+    margin-bottom: 6px;
+}
+
+/* ASSINATURAS */
+.cert-assinaturas {
+    display: flex;
+    justify-content: space-between;
+}
+
+.cert-assinatura-col {
+    width: 45%;
+    text-align: center;
+}
+
+/* ==== Correção definitiva do tamanho da assinatura ==== */
+.cert-assinatura-area {
+    height: 22px;
+    /* mantém sua altura reduzida */
+    border: 1px solid #000;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    /* impede vazamento da imagem */
+    padding: 0;
+    /* evita expansão acidental */
+}
+
+/* imagem da assinatura */
+.cert-assinatura-imagem {
+    max-height: 100%;
+    /* nunca passa da área */
+    max-width: 100%;
+    /* nunca passa da largura */
+    object-fit: contain;
+    /* mantém proporção correta */
+}
+
+.cert-assinatura-linha {
+    width: 100%;
+    height: 1px;
+    background: #000;
+    margin-top: 2px;
+}
+
+.cert-assinatura-label {
+    font-size: 0.40rem;
+    color: white;
+    margin-top: 2px;
+}
+
+.cert-footer-brand {
+    margin-top: 6px;
+    text-align: center;
+    font-size: 0.45rem;
+    color: white;
+}
+
+/* Destaque do número da quantidade */
+.destaque-oil {
+    font-weight: bold;
+    font-size: 0.5rem;
+    color: #000;
+}
+
+/* Valor total com underline */
+.comp-total {
+    margin-left: 4px;
+    font-weight: bold;
+    min-width: 55px;
+    display: inline-block;
+    text-align: right;
+}

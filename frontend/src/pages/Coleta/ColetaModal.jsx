@@ -4,8 +4,6 @@ import "./ColetaModal.css";
 import { ChevronLeft } from "lucide-react";
 import api from "../../services/api";
 import TipoColeta from "./TipoColeta";
-
-// 🔥 Toastify
 import { toast } from "react-toastify";
 
 export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
@@ -26,25 +24,31 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
     });
 
     const [etapa, setEtapa] = useState("formulario");
-
     const POR_PAGINA = 3;
 
-    // =========================
-    // NORMALIZAR DATA
-    // =========================
+    // ===================================================
+    // Listener do botão de CERTIFICADO vindo do Coleta.jsx
+    // ===================================================
+    useEffect(() => {
+        const handler = (e) => {
+            setEtapa("preview-certificado");
+        };
+
+        window.addEventListener("abrir-preview-certificado", handler);
+        return () => window.removeEventListener("abrir-preview-certificado", handler);
+    }, []);
+
+    // Normaliza data ao editar
     const formatarData = (dataISO) => {
         if (!dataISO) return "";
-        return dataISO.split("T")[0]; // yyyy-mm-dd
+        return dataISO.split("T")[0];
     };
 
-    // ===========================================================
-    // QUANDO ABRE PARA EDITAR
-    // ===========================================================
+    // Quando abre para editar
     useEffect(() => {
         if (!open) return;
 
         if (!coletaEdit) {
-            // limpeza total
             setFormData({
                 id_coleta: null,
                 id_cliente: null,
@@ -57,30 +61,25 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
             return;
         }
 
-        // Montar lista de tipos
         const montarTipos = () => {
             const lista = [];
 
-            // PIX / CRÉDITO
             coletaEdit.compensacoes?.forEach((c) => {
-                if (c.id_tipo === 1) {
+                if (c.id_tipo === 1)
                     lista.push({
                         tipo: "pix",
                         quantidade: Number(c.quantidade),
                         valor_unitario: Number(c.valor_unitario),
                     });
-                }
 
-                if (c.id_tipo === 2) {
+                if (c.id_tipo === 2)
                     lista.push({
                         tipo: "credito",
                         quantidade: Number(c.quantidade),
                         valor_unitario: Number(c.valor_unitario),
                     });
-                }
             });
 
-            // PRODUTO
             if (
                 coletaEdit.compensacoes?.some((c) => c.id_tipo === 3) ||
                 coletaEdit.produtos?.length > 0
@@ -103,7 +102,6 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
             return lista;
         };
 
-        // Preencher form
         setFormData({
             id_coleta: coletaEdit.id_coleta,
             id_cliente: coletaEdit.id_cliente,
@@ -116,20 +114,14 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
         setTiposSelecionados(montarTipos());
     }, [open, coletaEdit]);
 
-    // =========================
-    // CARREGAR CLIENTES
-    // =========================
+    // ============================
+    // Carregar lista de clientes
+    // ============================
     const fetchClientes = async () => {
         try {
             const { data } = await api.get("/clientes");
-
             const lista = Array.isArray(data.data) ? data.data : [];
-
-            const filtrados = lista
-                .filter((c) => c.status === "ATIVO")
-                .sort((a, b) => b.id_cliente - a.id_cliente);
-
-            setClientes(filtrados);
+            setClientes(lista.filter((c) => c.status === "ATIVO"));
         } catch (e) {
             toast.error("Erro ao carregar clientes.");
         }
@@ -139,9 +131,9 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
         if (open) fetchClientes();
     }, [open]);
 
-    // =========================
-    // FILTRO CLIENTES
-    // =========================
+    // ============================
+    // Filtragem de clientes
+    // ============================
     const clientesFiltrados = useMemo(() => {
         const termo = busca.trim().toLowerCase();
         if (!termo) return clientes;
@@ -158,9 +150,9 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
     const inicio = (pagina - 1) * POR_PAGINA;
     const paginaAtual = clientesFiltrados.slice(inicio, inicio + POR_PAGINA);
 
-    // =========================
+    // ============================
     // TIPOS
-    // =========================
+    // ============================
     const abrirTipo = (tipo) => {
         const existente = tiposSelecionados.find((t) => t.tipo === tipo) || null;
         setTipoInicial(existente);
@@ -170,9 +162,8 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
     const salvarTipo = (dadosTipo) => {
         setTiposSelecionados((prev) => {
             const idx = prev.findIndex((t) => t.tipo === dadosTipo.tipo);
-            if (idx !== -1) {
+            if (idx !== -1)
                 return prev.map((t) => (t.tipo === dadosTipo.tipo ? dadosTipo : t));
-            }
             return [...prev, dadosTipo];
         });
 
@@ -186,9 +177,9 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
         toast.info("Compensação removida.");
     };
 
-    // =========================
-    // SALVAR COLETA COMPLETA
-    // =========================
+    // ============================
+    // SALVAR COLETA
+    // ============================
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -205,37 +196,40 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
         onSave(payload);
     };
 
+    // ============================
+    // Preview do Certificado
+    // (por enquanto só placeholder)
+    // ============================
+    if (etapa === "preview-certificado") {
+        return (
+            <div className="modal-overlay" onClick={onClose}>
+                <div className="modal fullscreen" onClick={(e) => e.stopPropagation()}>
+                    <button
+                        className="back-btn"
+                        onClick={() => setEtapa("formulario")}
+                        style={{ marginBottom: 20 }}
+                    >
+                        <ChevronLeft size={24} />
+                    </button>
+
+                    <h2>🔖 Pré-visualização do Certificado</h2>
+                    <p style={{ opacity: 0.8 }}>
+                        Aqui vai o layout real do certificado.
+                    </p>
+
+                    <button className="btn primary" style={{ marginTop: 30 }}>
+                        Baixar Certificado
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // ============================
+    // Render do modal normal
+    // ============================
     if (!open) return null;
 
-    // =========================
-    // RESUMO TIPOS
-    // =========================
-    const resumoTipo = (t) => {
-        if (t.tipo === "pix" || t.tipo === "credito") {
-            const total =
-                (Number(t.quantidade) || 0) * (Number(t.valor_unitario) || 0);
-            const label = t.tipo === "pix" ? "PIX" : "CRÉDITO";
-
-            return `${label} — ${t.quantidade} L — R$ ${Number(
-                t.valor_unitario
-            ).toFixed(2)} /L = R$ ${total.toFixed(2)}`;
-        }
-
-        if (t.tipo === "produto") {
-            const litros = Number(t.quantidade_oleo || 0);
-            const descProdutos = (t.produtos || [])
-                .map((p) => `${p.nome_produto} ${p.quantidade}un`)
-                .join(", ");
-
-            return `PRODUTO — ${litros} L — ${descProdutos}`;
-        }
-
-        return "";
-    };
-
-    // =========================
-    // RENDER
-    // =========================
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div
@@ -246,9 +240,7 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
                 }`}
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* ======================================================
-                   FORM PRINCIPAL
-                ====================================================== */}
+                {/* FORMULÁRIO PRINCIPAL */}
                 {etapa === "formulario" && (
                     <form className="modal-form" onSubmit={handleSubmit}>
                         <label>
@@ -277,7 +269,6 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
                             />
                         </label>
 
-                        {/* TIPOS */}
                         <div className="tipo-bloco">
                             <h4 className="tipo-titulo">Compensação da Coleta</h4>
 
@@ -298,9 +289,7 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
                                     <input
                                         type="checkbox"
                                         className="cb-big"
-                                        checked={
-                                            !!tiposSelecionados.find((t) => t.tipo === "produto")
-                                        }
+                                        checked={!!tiposSelecionados.find((t) => t.tipo === "produto")}
                                         onChange={() => abrirTipo("produto")}
                                     />
                                     <span className="tipo-text">
@@ -312,9 +301,7 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
                                     <input
                                         type="checkbox"
                                         className="cb-big"
-                                        checked={
-                                            !!tiposSelecionados.find((t) => t.tipo === "credito")
-                                        }
+                                        checked={!!tiposSelecionados.find((t) => t.tipo === "credito")}
                                         onChange={() => abrirTipo("credito")}
                                     />
                                     <span className="tipo-text">
@@ -326,7 +313,11 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
                             <div className="tipo-lista">
                                 {tiposSelecionados.map((t) => (
                                     <div key={t.tipo} className="tipo-item">
-                                        <span className="tipo-info">{resumoTipo(t)}</span>
+                                        <span className="tipo-info">
+                                            {t.tipo === "pix" || t.tipo === "credito"
+                                                ? `${t.tipo.toUpperCase()} — ${t.quantidade} L — R$ ${t.valor_unitario}/L`
+                                                : `PRODUTO — ${t.quantidade_oleo} L`}
+                                        </span>
 
                                         <div className="tipo-botoes">
                                             <button
@@ -390,16 +381,11 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
                     </form>
                 )}
 
-                {/* ======================================================
-                   SELEÇÃO DE CLIENTE
-                ====================================================== */}
+                {/* SELEÇÃO DE CLIENTE */}
                 {etapa === "selecaoCliente" && (
                     <div className="cliente-page">
                         <div className="cliente-header">
-                            <button
-                                className="back-btn"
-                                onClick={() => setEtapa("formulario")}
-                            >
+                            <button className="back-btn" onClick={() => setEtapa("formulario")}>
                                 <ChevronLeft size={20} />
                             </button>
 
@@ -434,21 +420,13 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
                                             setEtapa("formulario");
                                         }}
                                     >
-                                        <h3 className="cliente-name">
-                                            {c.nome_fantasia || "—"}
-                                        </h3>
-
+                                        <h3 className="cliente-name">{c.nome_fantasia || "—"}</h3>
                                         <p className="cliente-line">{c.razao_social || "—"}</p>
                                         <p className="cliente-line">{c.cnpj_cpf || "—"}</p>
                                         <p className="cliente-line">
                                             {c.dias_funcionamento || "—"}
                                         </p>
-
-                                        <p
-                                            className={`status ${
-                                                c.status === "ATIVO" ? "ok" : "off"
-                                            }`}
-                                        >
+                                        <p className={`status ${c.status === "ATIVO" ? "ok" : "off"}`}>
                                             {c.status}
                                         </p>
                                     </article>
@@ -484,9 +462,7 @@ export default function ColetaModal({ open, onClose, onSave, coletaEdit }) {
                     </div>
                 )}
 
-                {/* ======================================================
-                   TIPOS: PIX / CRÉDITO / PRODUTO
-                ====================================================== */}
+                {/* TIPOS */}
                 {etapa === "tipo_pix" && (
                     <TipoColeta
                         tipo="pix"

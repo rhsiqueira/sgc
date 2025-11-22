@@ -1,13 +1,28 @@
+// C:\dev\sgc\frontend\src\pages\Coleta\Coleta.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import "./Coleta.css";
-import { ChevronLeft, Edit3, Trash2, PlusCircle } from "lucide-react";
-import ColetaModal from "./ColetaModal";
 
-// 🔥 Toastify
+
+// Ícones
+import {
+  ChevronLeft,
+  Edit3,
+  Trash2,
+  PlusCircle,
+  FileSignature,
+} from "lucide-react";
+
+// Modais
+import ColetaModal from "./ColetaModal";
+import GerarCertificado from "./GerarCertificado";
+
+
+// Toastify
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 
 export default function Coleta() {
   const navigate = useNavigate();
@@ -23,6 +38,8 @@ export default function Coleta() {
   const [editMode, setEditMode] = useState(false);
   const [coletaSelecionada, setColetaSelecionada] = useState(null);
   const [expandido, setExpandido] = useState(null);
+  const [showConfirmCert, setShowConfirmCert] = useState(false);
+
 
   const POR_PAGINA = 3;
 
@@ -54,6 +71,7 @@ export default function Coleta() {
       toast.error("Erro ao carregar clientes.");
     }
   };
+
 
   useEffect(() => {
     fetchColetas();
@@ -100,7 +118,15 @@ export default function Coleta() {
   const paginaAtual = filtradas.slice(inicio, inicio + POR_PAGINA);
 
   // =============================
-  // Modal
+  // Helpers
+  // =============================
+  const clientePorId = (id) => clientes.find((c) => c.id_cliente === id);
+
+  const formatarData = (data) =>
+    data ? new Date(data).toLocaleDateString("pt-BR") : "—";
+
+  // =============================
+  // Modal de Coleta (CRUD)
   // =============================
   const abrirModal = (c = null) => {
     setEditMode(!!c);
@@ -113,9 +139,6 @@ export default function Coleta() {
     setColetaSelecionada(null);
   };
 
-  // =============================
-  // Salvar Coleta (POST/PUT)
-  // =============================
   const salvarColeta = async (dados) => {
     try {
       if (editMode) {
@@ -140,7 +163,6 @@ export default function Coleta() {
     } catch (e) {
       console.error(e);
 
-      // Erro de validação 422
       if (e.response?.status === 422 && e.response?.data?.errors) {
         const campo = Object.keys(e.response.data.errors)[0];
         toast.error(e.response.data.errors[campo][0]);
@@ -151,9 +173,6 @@ export default function Coleta() {
     }
   };
 
-  // =============================
-  // Excluir Coleta
-  // =============================
   const excluirColeta = async (c) => {
     if (!window.confirm(`Excluir coleta #${c.id_coleta}?`)) return;
 
@@ -166,10 +185,6 @@ export default function Coleta() {
     }
   };
 
-  const clientePorId = (id) => clientes.find((c) => c.id_cliente === id);
-
-  const formatarData = (data) =>
-    data ? new Date(data).toLocaleDateString("pt-BR") : "—";
 
   // =============================
   // RENDER
@@ -262,8 +277,23 @@ export default function Coleta() {
                   }
                 >
                   <div className="card-actions">
+                    {/* 🔵 Botão de certificado (à esquerda de Editar) */}
                     <button
                       className="icon-btn"
+                      title="Gerar certificado"
+                      onClick={(e) => {
+                        e.stopPropagation();
+
+                        setColetaSelecionada(c);   // guarda coleta
+                        setShowConfirmCert(true);  // abre modal de confirmação
+                      }}
+                    >
+                      <FileSignature size={18} />
+                    </button>
+
+                    <button
+                      className="icon-btn"
+                      title="Editar"
                       onClick={(e) => {
                         e.stopPropagation();
                         abrirModal(c);
@@ -271,8 +301,10 @@ export default function Coleta() {
                     >
                       <Edit3 size={18} />
                     </button>
+
                     <button
                       className="icon-btn danger"
+                      title="Excluir"
                       onClick={(e) => {
                         e.stopPropagation();
                         excluirColeta(c);
@@ -297,9 +329,8 @@ export default function Coleta() {
                   </p>
 
                   <p
-                    className={`status ${
-                      c.status === "CONCLUIDA" ? "ok" : ""
-                    }`}
+                    className={`status ${c.status === "CONCLUIDA" ? "ok" : ""
+                      }`}
                   >
                     {c.status}
                   </p>
@@ -307,6 +338,7 @@ export default function Coleta() {
                   {/* EXPANDIDO */}
                   {isExpandido && (
                     <div className="coleta-detalhes fade-in">
+                      {/* BLOCO CLIENTE */}
                       <div className="coleta-bloco">
                         <h4 className="coleta-bloco-titulo">Cliente</h4>
 
@@ -325,11 +357,9 @@ export default function Coleta() {
                         <p className="coleta-bloco-item">
                           <strong>Endereço:</strong>{" "}
                           {cli
-                            ? `${cli.endereco || "—"}, ${
-                                cli.numero || ""
-                              } - ${cli.bairro || ""} - ${
-                                cli.cidade || ""
-                              } / ${cli.estado || ""}`
+                            ? `${cli.endereco || "—"}, ${cli.numero || ""
+                            } - ${cli.bairro || ""} - ${cli.cidade || ""
+                            } / ${cli.estado || ""}`
                             : "—"}
                         </p>
 
@@ -339,6 +369,7 @@ export default function Coleta() {
                         </p>
                       </div>
 
+                      {/* BLOCO COLETA */}
                       <div className="coleta-bloco">
                         <h4 className="coleta-bloco-titulo">
                           Detalhes da Coleta
@@ -366,8 +397,8 @@ export default function Coleta() {
                               {cp.id_tipo === 1
                                 ? "Pagamento Imediato (PIX)"
                                 : cp.id_tipo === 2
-                                ? "Crédito em Loja"
-                                : "Troca por Produto"}
+                                  ? "Crédito em Loja"
+                                  : "Troca por Produto"}
                               :
                             </strong>{" "}
                             {cp.quantidade} L
@@ -419,14 +450,28 @@ export default function Coleta() {
         )}
       </main>
 
-      {/* 🔥 Toasts */}
+
+      {/* Toasts */}
       <ToastContainer position="top-right" autoClose={2500} />
 
+      {/* Modal principal de Coleta */}
       <ColetaModal
         open={openModal}
         onClose={fecharModal}
         onSave={salvarColeta}
         coletaEdit={coletaSelecionada}
+      />
+      <GerarCertificado
+        open={showConfirmCert}
+        coleta={coletaSelecionada}
+        onClose={() => setShowConfirmCert(false)}
+        onConfirm={(col, assinaturaBase64) => {
+          setShowConfirmCert(false);
+
+          navigate(`/coletas/certificado/${col.id_coleta}`, {
+            state: { assinaturaBase64 },
+          });
+        }}
       />
     </div>
   );

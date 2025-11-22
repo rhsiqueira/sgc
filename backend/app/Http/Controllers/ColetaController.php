@@ -168,6 +168,30 @@ class ColetaController extends Controller
         });
     }
 
+
+public function show($id)
+{
+    $coleta = Coleta::with([
+        'cliente',
+        'usuario',
+        'compensacoes.tipo',
+        'produtos.produto',
+    ])->find($id);
+
+    if (!$coleta) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Coleta não encontrada.',
+        ], 404);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'data'   => $coleta,
+    ], 200);
+}
+
+
     /**
      * ATUALIZAR COLETA
      */
